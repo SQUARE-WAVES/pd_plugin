@@ -1,3 +1,6 @@
+#mac bullshit
+*.DS_Store
+
 # Prerequisites
 *.d
 
@@ -30,3 +33,15 @@
 *.exe
 *.out
 *.app
+
+#cmake stuff
+cmake_build/*
+CmakeCache
+
+#my fun scripts
+rebuild
+build
+run
+
+#juce link
+JUCE

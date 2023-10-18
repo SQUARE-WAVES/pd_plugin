@@ -1,0 +1,67 @@
+cmake_minimum_required(VERSION 3.7)
+
+project(
+  distort_plug 
+  VERSION 0.0.0
+)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_EXPORT_COMPILE_COMMANDS true)
+
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE debug)
+endif()
+
+if(CMAKE_BUILD_TYPE EQUAL debug)
+message(STATUS "WOW WOAH HEY WOW WOAH HEY WHAT WOAH WOW ITS GOING")
+endif()
+
+set(target_name tort)
+add_subdirectory(JUCE)
+
+juce_add_plugin("${target_name}"
+  # VERSION ... Set this if the plugin version is different to the project version
+  # ICON_BIG ... ICON_* arguments specify a path to an image file to use as an icon for the Standalone
+  # ICON_SMALL ...
+  
+  COMPANY_NAME "MachineEmpire"
+  IS_SYNTH TRUE
+  NEEDS_MIDI_INPUT TRUE
+  NEEDS_MIDI_OUTPUT FALSE
+  IS_MIDI_EFFECT FALSE
+  EDITOR_WANTS_KEYBOARD_FOCUS FALSE
+  COPY_PLUGIN_AFTER_BUILD TRUE
+  PLUGIN_MANUFACTURER_CODE Juce
+  PLUGIN_CODE VSTS
+  FORMATS VST3 Standalone
+  PRODUCT_NAME "tort"
+)
+
+file(GLOB_RECURSE src "src/**.cpp")
+
+target_sources(${target_name} PRIVATE ${src})
+
+target_compile_definitions( ${target_name}
+  PUBLIC
+  JUCE_WEB_BROWSER=0
+  JUCE_USE_CURL=0
+  JUCE_VST3_CAN_REPLACE_VST2=0
+  JUCE_DISPLAY_SPLASH_SCREEN=0
+)
+
+target_link_libraries(${target_name} PRIVATE
+  juce::juce_gui_extra
+  juce::juce_gui_basics
+  juce::juce_graphics
+  juce::juce_events
+  juce::juce_core
+  juce::juce_data_structures
+  juce::juce_audio_basics
+  juce::juce_audio_devices
+  juce::juce_audio_utils
+  juce::juce_audio_processors
+  juce::juce_audio_plugin_client
+  juce::juce_recommended_config_flags
+  juce::juce_recommended_lto_flags
+  juce::juce_recommended_warning_flags
+)
