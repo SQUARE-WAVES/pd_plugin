@@ -45,3 +45,6 @@ run
 
 #juce link
 JUCE
+
+#LSP shit
+compile_commands.json

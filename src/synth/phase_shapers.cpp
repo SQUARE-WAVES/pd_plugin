@@ -51,22 +51,22 @@ float phase_shapers::two_peaks(const float ph, const float amt)
   const float p2_left = 0.75f - stretch;
   const float p2_right = 0.75f + stretch;
 
-  if(ph <= p1_left)
+  if(ph < p1_left)
   {
     return std::lerp(0.0f,0.25f,ph/p1_left);
   }
   
-  if(ph<=p1_right)
+  if(ph < p1_right)
   {
    return .25;
   }
   
-  if(ph<=p2_left)
+  if(ph < p2_left)
   {
    return std::lerp(0.25f,0.75f,(ph-p1_right)/(p2_left - p1_right));
   }
 
-  if(ph <= p2_right)
+  if(ph < p2_right)
   {
     return 0.75f;
   }
