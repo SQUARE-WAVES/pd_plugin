@@ -9,8 +9,8 @@
 
 enum class waveform
 {
-  cos = 0,
-  sin = 1
+  sin = 0,
+  cos = 1
 };
 
 enum class phase_shaper
@@ -32,7 +32,8 @@ enum class window
 enum class waveshaper
 {
   off = 0,
-  tri = 1
+  tri = 1,
+  c3 = 2
 };
 
 struct special_oscillator

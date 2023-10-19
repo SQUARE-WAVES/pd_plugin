@@ -133,8 +133,8 @@ void::gui::oscil_interface::background::paint(gfx &g)
 
   g.setColour(cga::grey);
   g.drawText("shaper",gridbox(1,1),jst::centred);
-  g.drawText("base_phase_distortion",gridbox(1,3),jst::centred);
-  g.drawText("envelope amt",gridbox(1,5),jst::centred);
+  g.drawText("base_PD",gridbox(1,3),jst::centred);
+  g.drawText("env_amt",gridbox(1,5),jst::centred);
 
   //====Waveshaper====
   g.setColour(cga::white);
@@ -148,7 +148,7 @@ void::gui::oscil_interface::background::paint(gfx &g)
   g.setColour(cga::grey);
   g.drawText("wave_shaper",gridbox(2,1),jst::centred);
   g.drawText("base_distortion",gridbox(2,3),jst::centred);
-  g.drawText("envelope amt",gridbox(2,5),jst::centred);
+  g.drawText("env_amt",gridbox(2,5),jst::centred);
 
   //====PD envelope====
   g.setColour(cga::white);
@@ -157,7 +157,7 @@ void::gui::oscil_interface::background::paint(gfx &g)
   g.setColour(cga::hi_cyan);
   g.fillRect(gridbox(3, 0));
   g.setColour(cga::black);
-  g.drawText("PD ENVELOPE",gridbox(3,0),jst::centred);
+  g.drawText("PD ENV",gridbox(3,0),jst::centred);
 
   g.setColour(cga::grey);
   g.drawText("attack",gridbox(3,1),jst::centred);
@@ -172,7 +172,7 @@ void::gui::oscil_interface::background::paint(gfx &g)
   g.setColour(cga::hi_cyan);
   g.fillRect(gridbox(4, 0));
   g.setColour(cga::black);
-  g.drawText("WAVESHAPER ENVELOPE",gridbox(4,0),jst::centred);
+  g.drawText("SHAPER ENV",gridbox(4,0),jst::centred);
 
   g.setColour(cga::grey);
   g.drawText("attack",gridbox(4,1),jst::centred);
@@ -187,7 +187,7 @@ void::gui::oscil_interface::background::paint(gfx &g)
   g.setColour(cga::hi_cyan);
   g.fillRect(gridbox(5, 0));
   g.setColour(cga::black);
-  g.drawText("AMP ENVELOPE",gridbox(5,0),jst::centred);
+  g.drawText("AMP ENV",gridbox(5,0),jst::centred);
 
   g.setColour(cga::grey);
   g.drawText("attack",gridbox(5,1),jst::centred);

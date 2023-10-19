@@ -61,7 +61,7 @@ state(*this,nullptr,"state",
     float_param("osc1_pd_base",0.0f,1.0f,0.0f),
     float_param("osc1_pd_env_amt",0.0f,1.0f,0.0f),
 
-    choice_param("osc1_waveshaper",{"off","tri"},0),
+    choice_param("osc1_waveshaper",{"off","tri","c3"},0),
     float_param("osc1_waveshaper_base",0.0f,1.0f,0.0f),
     float_param("osc1_waveshaper_env_amt",0.0f,1.0f,0.0f),
 
@@ -95,7 +95,7 @@ state(*this,nullptr,"state",
     float_param("osc2_pd_base",0.0f,1.0f,0.0f),
     float_param("osc2_pd_env_amt",0.0f,1.0f,0.0f),
 
-    choice_param("osc2_waveshaper",{"off","tri"},0),
+    choice_param("osc2_waveshaper",{"off","tri","c3"},0),
     float_param("osc2_waveshaper_base",0.0f,1.0f,0.0f),
     float_param("osc2_waveshaper_env_amt",0.0f,1.0f,0.0f),
 

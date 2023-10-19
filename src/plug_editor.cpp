@@ -1,14 +1,14 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 
 #include "plug_main.h"
-#include "gui/sliders.h"
+#include "gui/fonts.h"
 
 using namespace juce;
 
 static void setup_styles()
 {
   auto& lnf = juce::LookAndFeel::getDefaultLookAndFeel();
-  lnf.setDefaultSansSerifTypefaceName("Perfect DOS VGA 437");
+  lnf.setDefaultSansSerifTypeface(gui::tf);
 }
 
 pd_proc::editor::editor(pd_proc& pxer):

@@ -1,4 +1,5 @@
 #include "specialosc.h"
+#include "waveshapers.h"
 
 float special_oscillator::calc_phase(const float raw_ph, const float pd_amt, const phase_shaper ps)
 {
@@ -68,6 +69,10 @@ float special_oscillator::calc_shaper(const float wave,const float shp_amt, cons
 
     case waveshaper::tri:
       return waveshapers::tri(wave, shp_amt);
+    break;
+
+    case waveshaper::c3:
+      return waveshapers::cheby3(wave,shp_amt);
     break;
   }
 }

@@ -23,7 +23,7 @@ set(target_name tort)
 add_subdirectory(JUCE)
 
 #EMBED THOSE FONTS!
-file(GLOB_RECURSE binary_assets "./fonts")
+file(GLOB_RECURSE binary_assets "./fonts/*.ttf")
 
 juce_add_binary_data(
   fonts
@@ -45,7 +45,7 @@ juce_add_plugin("${target_name}"
   EDITOR_WANTS_KEYBOARD_FOCUS FALSE
   PLUGIN_MANUFACTURER_CODE MeBm  #this is some AU bullshit I think
   PLUGIN_CODE BmCT
-  FORMATS VST3 Standalone
+  FORMATS VST VST3 Standalone
   PRODUCT_NAME "tort"
 )
 
