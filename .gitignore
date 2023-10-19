@@ -35,7 +35,7 @@
 *.app
 
 #cmake stuff
-cmake_build/*
+cmake_build*
 CmakeCache
 
 #my fun scripts

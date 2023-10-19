@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.7)
 
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE DEBUG)
+endif()
+
 project(
   distort_plug 
   VERSION 0.0.0
@@ -8,16 +12,25 @@ project(
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS true)
 
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE debug)
-endif()
+message(STATUS "BUILD TYPE -> ${CMAKE_BUILD_TYPE}")
 
-if(CMAKE_BUILD_TYPE EQUAL debug)
-message(STATUS "WOW WOAH HEY WOW WOAH HEY WHAT WOAH WOW ITS GOING")
+if(CMAKE_BUILD_TYPE STREQUAL "DEBUG")
+  message(STATUS "DEBUG FOR REAL")
+  set(jdbg 1)
 endif()
 
 set(target_name tort)
 add_subdirectory(JUCE)
+
+#EMBED THOSE FONTS!
+file(GLOB_RECURSE binary_assets "./fonts")
+
+juce_add_binary_data(
+  fonts
+  HEADER_NAME "font_binary.h"
+  NAMESPACE "font_binary"
+  SOURCES ${binary_assets}
+)
 
 juce_add_plugin("${target_name}"
   # VERSION ... Set this if the plugin version is different to the project version
@@ -30,9 +43,8 @@ juce_add_plugin("${target_name}"
   NEEDS_MIDI_OUTPUT FALSE
   IS_MIDI_EFFECT FALSE
   EDITOR_WANTS_KEYBOARD_FOCUS FALSE
-  COPY_PLUGIN_AFTER_BUILD TRUE
-  PLUGIN_MANUFACTURER_CODE Juce
-  PLUGIN_CODE VSTS
+  PLUGIN_MANUFACTURER_CODE MeBm  #this is some AU bullshit I think
+  PLUGIN_CODE BmCT
   FORMATS VST3 Standalone
   PRODUCT_NAME "tort"
 )
@@ -64,4 +76,5 @@ target_link_libraries(${target_name} PRIVATE
   juce::juce_recommended_config_flags
   juce::juce_recommended_lto_flags
   juce::juce_recommended_warning_flags
+  fonts
 )
