@@ -1,7 +1,21 @@
 cmake_minimum_required(VERSION 3.7)
 
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE DEBUG)
+  set(CMAKE_BUILD_TYPE Debug)
+endif()
+
+message(STATUS "BUILD TYPE -> ${CMAKE_BUILD_TYPE}")
+message(STATUS "SYSTEM -> ${APPLE}")
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  message(STATUS "DEBUG FOR REAL")
+  set(jdbg 1)
+endif()
+
+
+if(${APPLE} AND CMAKE_BUILD_TYPE STREQUAL "Release")
+  message(STATUS "BUILDING OSX RELEASE UNIVERSAL BINARY")
+  set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "" FORCE)
 endif()
 
 project(
@@ -11,13 +25,6 @@ project(
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS true)
-
-message(STATUS "BUILD TYPE -> ${CMAKE_BUILD_TYPE}")
-
-if(CMAKE_BUILD_TYPE STREQUAL "DEBUG")
-  message(STATUS "DEBUG FOR REAL")
-  set(jdbg 1)
-endif()
 
 set(target_name tort)
 add_subdirectory(JUCE)
