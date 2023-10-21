@@ -2,12 +2,12 @@
 
 #include <juce_gui_basics/juce_gui_basics.h>
 #include "colors.h"
+#include "grid.h"
 #include "sliders.h"
 #include "butttons.h"
 
 namespace gui
 {
-
   class oscil_interface : public juce::Component
   {
     using gfx = juce::Graphics;
@@ -22,6 +22,7 @@ namespace gui
 
       public:
       background(str name):panel_name(name){}
+      rect text_box();
 
       void paint(gfx& g) override;
     };
@@ -63,6 +64,13 @@ namespace gui
     bar_slider amp_env_d;
     bar_slider amp_env_s;
     bar_slider amp_env_r;
+
+    //pitch_env
+    bar_slider pitch_env_amt;
+    bar_slider pitch_env_a;
+    bar_slider pitch_env_d;
+    bar_slider pitch_env_s;
+    bar_slider pitch_env_r;
 
     public:
     oscil_interface(juce::AudioProcessorValueTreeState& st,str prefix,str panel_name);

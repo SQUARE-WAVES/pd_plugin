@@ -11,13 +11,12 @@ namespace gui
     rect bounds;
     int rows;
     int cols;
-    int padding;
 
     int row_h() const;
     int col_w() const;
-    rect gridrow(const int y) const;
-    rect gridcol(int x) const;
-    rect gridbox(int x, int y) const;
-    rect gridrect(int x, int y, int w, int h) const;
+    rect row(const int y, const int xpd=0,const int ypd=0) const;
+    rect col(int x,const int xpd=0, const int ypd=0) const;
+    rect cell(int x, int y,const int xpd=0,const int ypd=0) const;
+    rect cell_rect(int x, int y, int w, int h, const int xpd= 0, const int ypd=0) const;
   };
 }

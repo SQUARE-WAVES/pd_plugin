@@ -61,7 +61,7 @@ state(*this,nullptr,"state",
     float_param("osc1_pd_base",0.0f,1.0f,0.0f),
     float_param("osc1_pd_env_amt",0.0f,1.0f,0.0f),
 
-    choice_param("osc1_waveshaper",{"off","tri","c3"},0),
+    choice_param("osc1_waveshaper",{"off","sig","chb","sin","tri"},0),
     float_param("osc1_waveshaper_base",0.0f,1.0f,0.0f),
     float_param("osc1_waveshaper_env_amt",0.0f,1.0f,0.0f),
 
@@ -71,17 +71,21 @@ state(*this,nullptr,"state",
     float_param("osc1_amp_env_sustain",0.0f,1.0f,1.0f),
     float_param("osc1_amp_env_release",0.001f,4.0f,0.001f),
 
-    //env times are in seconds
     float_param("osc1_pd_env_attack",0.001f,4.0f,0.001f),
     float_param("osc1_pd_env_decay",0.001f,4.0f,0.001f),
     float_param("osc1_pd_env_sustain",0.0f,1.0f,0.0f),
     float_param("osc1_pd_env_release",0.001f,4.0f,0.001f),
 
-    //env times are in seconds
     float_param("osc1_shp_env_attack",0.001f,4.0f,0.001f),
     float_param("osc1_shp_env_decay",0.001f,4.0f,0.001f),
     float_param("osc1_shp_env_sustain",0.0f,1.0f,0.0f),
-    float_param("osc1_shp_env_release",0.001f,4.0f,0.001f)
+    float_param("osc1_shp_env_release",0.001f,4.0f,0.001f),
+
+    float_param("osc1_pitch_env_amt",-24.0f,24.0f,0.0f),
+    float_param("osc1_pitch_env_attack",0.001f,4.0f,0.001f),
+    float_param("osc1_pitch_env_decay",0.001f,4.0f,0.001f),
+    float_param("osc1_pitch_env_sustain",0.0f,1.0f,0.0f),
+    float_param("osc1_pitch_env_release",0.001f,4.0f,0.001f)
   ),
 
   std::make_unique<AudioProcessorParameterGroup>("osc2","osc2","-",
@@ -95,7 +99,7 @@ state(*this,nullptr,"state",
     float_param("osc2_pd_base",0.0f,1.0f,0.0f),
     float_param("osc2_pd_env_amt",0.0f,1.0f,0.0f),
 
-    choice_param("osc2_waveshaper",{"off","tri","c3"},0),
+    choice_param("osc2_waveshaper",{"off","sig","chb","sin","tri"},0),
     float_param("osc2_waveshaper_base",0.0f,1.0f,0.0f),
     float_param("osc2_waveshaper_env_amt",0.0f,1.0f,0.0f),
 
@@ -115,7 +119,13 @@ state(*this,nullptr,"state",
     float_param("osc2_shp_env_attack",0.001f,4.0f,0.001f),
     float_param("osc2_shp_env_decay",0.001f,4.0f,0.001f),
     float_param("osc2_shp_env_sustain",0.0f,1.0f,0.0f),
-    float_param("osc2_shp_env_release",0.001f,4.0f,0.001f)
+    float_param("osc2_shp_env_release",0.001f,4.0f,0.001f),
+
+    float_param("osc2_pitch_env_amt",-24.0f,24.0f,0.0f),
+    float_param("osc2_pitch_env_attack",0.001f,4.0f,0.001f),
+    float_param("osc2_pitch_env_decay",0.001f,4.0f,0.001f),
+    float_param("osc2_pitch_env_sustain",0.0f,1.0f,0.0f),
+    float_param("osc2_pitch_env_release",0.001f,4.0f,0.001f)
   ),
 
   //shared stuff
@@ -183,6 +193,12 @@ void pd_proc::do_parameters()
   synth.osc1.shp_s(get_float_val(state,"osc1_shp_env_sustain"));
   synth.osc1.shp_r(get_float_val(state,"osc1_shp_env_release"));
 
+  synth.osc1.set_ptch_env_amt(get_float_val(state,"osc1_pitch_env_amt"));
+  synth.osc1.ptch_a(get_float_val(state,"osc1_pitch_env_attack"));
+  synth.osc1.ptch_d(get_float_val(state,"osc1_pitch_env_decay"));
+  synth.osc1.ptch_s(get_float_val(state,"osc1_pitch_env_sustain"));
+  synth.osc1.ptch_r(get_float_val(state,"osc1_pitch_env_release"));
+
   //================================================================================
   synth.o2_vol.set_target(get_float_val(state,"osc2_vol"));
   synth.osc2.set_wave(get_enum_choice<waveform>(state,"osc2_wave"));
@@ -212,6 +228,12 @@ void pd_proc::do_parameters()
   synth.osc2.shp_d(get_float_val(state,"osc2_shp_env_decay"));
   synth.osc2.shp_s(get_float_val(state,"osc2_shp_env_sustain"));
   synth.osc2.shp_r(get_float_val(state,"osc2_shp_env_release"));
+
+  synth.osc2.set_ptch_env_amt(get_float_val(state,"osc2_pitch_env_amt"));
+  synth.osc2.ptch_a(get_float_val(state,"osc2_pitch_env_attack"));
+  synth.osc2.ptch_d(get_float_val(state,"osc2_pitch_env_decay"));
+  synth.osc2.ptch_s(get_float_val(state,"osc2_pitch_env_sustain"));
+  synth.osc2.ptch_r(get_float_val(state,"osc2_pitch_env_release"));
 
   synth.portamento_time(get_float_val(state,"portamento"));
   synth.xmod_vol.set_target(get_float_val(state,"cross_mod_vol"));

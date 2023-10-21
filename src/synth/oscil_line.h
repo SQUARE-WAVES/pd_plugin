@@ -14,6 +14,8 @@ class oscil_line
   target_float shp_amt;
   target_float shp_env_amt;
 
+  target_float pitch_env_amt;
+
   target_float tune;
 
   //parameters from other devices
@@ -23,6 +25,7 @@ class oscil_line
   ADSR amp_env;
   ADSR pd_env;
   ADSR shp_env;
+  ADSR pitch_env;
 
   special_oscillator osc;
 
@@ -40,6 +43,8 @@ class oscil_line
     void set_waveshaper(waveshaper shp);
 
     void set_tune(float v);
+    void set_ptch_env_amt(float v);
+
     void set_pd(float v);
     void set_pd_env_amt(float v);
     
@@ -60,6 +65,11 @@ class oscil_line
     void shp_d(float v);
     void shp_s(float v);
     void shp_r(float v);
+
+    void ptch_a(float v);
+    void ptch_d(float v);
+    void ptch_s(float v);
+    void ptch_r(float v);
 
     void set_freq(float f);
     void set_gate(bool g);

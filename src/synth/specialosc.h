@@ -32,8 +32,10 @@ enum class window
 enum class waveshaper
 {
   off = 0,
-  tri = 1,
-  c3 = 2
+  sig = 1,
+  chb = 2,
+  sin = 3,
+  tri = 4,
 };
 
 struct special_oscillator

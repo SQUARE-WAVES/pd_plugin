@@ -26,7 +26,12 @@ shp_env_r(st,pfx + "_shp_env_release"),
 amp_env_a(st,pfx + "_amp_env_attack"),
 amp_env_d(st,pfx + "_amp_env_decay"),
 amp_env_s(st,pfx + "_amp_env_sustain"),
-amp_env_r(st,pfx + "_amp_env_release")
+amp_env_r(st,pfx + "_amp_env_release"),
+pitch_env_amt(st,pfx + "_pitch_env_amt"),
+pitch_env_a(st,pfx + "_pitch_env_attack"),
+pitch_env_d(st,pfx + "_pitch_env_decay"),
+pitch_env_s(st,pfx + "_pitch_env_sustain"),
+pitch_env_r(st,pfx + "_pitch_env_release")
 {
   addAndMakeVisible(&bg);
   addAndMakeVisible(&wave);
@@ -51,50 +56,59 @@ amp_env_r(st,pfx + "_amp_env_release")
   addAndMakeVisible(&amp_env_d);
   addAndMakeVisible(&amp_env_s);
   addAndMakeVisible(&amp_env_r);
-}
-
-static inline Rectangle<int> gridbox(int x, int y)
-{
-  return {2+(250*x),14 + (25 * y), 246,25};
+  addAndMakeVisible(&pitch_env_amt);
+  addAndMakeVisible(&pitch_env_a);
+  addAndMakeVisible(&pitch_env_d);
+  addAndMakeVisible(&pitch_env_s);
+  addAndMakeVisible(&pitch_env_r);
 }
 
 void gui::oscil_interface::resized()
 {
   bg.setBounds(0,0,1500,275);
 
-  //panel 1 
-  wave.setBounds(gridbox(0,2));
-  tune.setBounds(gridbox(0,4));
-  tune_presets.setBounds(gridbox(0,5));
-  windows.setBounds(gridbox(0,7));
+  rect text_box = bg.text_box();
+  grid grd = {{0,text_box.getBottom(),1500,275-text_box.getBottom()},10,5};
+  int txt_slice = grd.col_w() - 60;
 
-  //panel 2
-  pd_waves.setBounds(gridbox(1,2));
-  pd_base.setBounds(gridbox(1,4));
-  pd_env_amt.setBounds(gridbox(1,6));
+  //pitch controls
+  tune.setBounds(grd.cell(0,1,2,1));
+  tune_presets.setBounds(grd.cell(0,2,2,1));
+  pitch_env_amt.setBounds(grd.cell(0,5,2,1).removeFromRight(txt_slice));
+  pitch_env_a.setBounds(grd.cell(0,6,2,1).removeFromRight(txt_slice));
+  pitch_env_d.setBounds(grd.cell(0,7,2,1).removeFromRight(txt_slice));
+  pitch_env_s.setBounds(grd.cell(0,8,2,1).removeFromRight(txt_slice));
+  pitch_env_r.setBounds(grd.cell(0,9,2,1).removeFromRight(txt_slice));
 
-  //panel 3
-  shaper_form.setBounds(gridbox(2,2));
-  shaper_base.setBounds(gridbox(2,4));
-  shaper_env_amt.setBounds(gridbox(2,6));
+  //waveform controls
+  wave.setBounds(grd.cell(1,1,2,1));
+  windows.setBounds(grd.cell(1,3,2,1));
 
-  //panel4
-  pd_env_a.setBounds(gridbox(3,2));
-  pd_env_d.setBounds(gridbox(3,4));
-  pd_env_s.setBounds(gridbox(3,6));
-  pd_env_r.setBounds(gridbox(3,8));
+  //PD controls
+  pd_waves.setBounds(grd.cell(2,1,2,1));
+  pd_base.setBounds(grd.cell(2,2,2,1));
+  
+  pd_env_amt.setBounds(grd.cell(2,5,2,1).removeFromRight(txt_slice));
+  pd_env_a.setBounds(grd.cell(2,6,2,1).removeFromRight(txt_slice));
+  pd_env_d.setBounds(grd.cell(2,7,2,1).removeFromRight(txt_slice));
+  pd_env_s.setBounds(grd.cell(2,8,2,1).removeFromRight(txt_slice));
+  pd_env_r.setBounds(grd.cell(2,9,2,1).removeFromRight(txt_slice));
 
-  //panel5
-  shp_env_a.setBounds(gridbox(4,2));
-  shp_env_d.setBounds(gridbox(4,4));
-  shp_env_s.setBounds(gridbox(4,6));
-  shp_env_r.setBounds(gridbox(4,8));
+  //waveshaper controls
+  shaper_form.setBounds(grd.cell(3,1,2,1));
+  shaper_base.setBounds(grd.cell(3,2,2,1));
+  
+  shaper_env_amt.setBounds(grd.cell(3,5,2,1).removeFromRight(txt_slice));
+  shp_env_a.setBounds(grd.cell(3,6,2,1).removeFromRight(txt_slice));
+  shp_env_d.setBounds(grd.cell(3,7,2,1).removeFromRight(txt_slice));
+  shp_env_s.setBounds(grd.cell(3,8,2,1).removeFromRight(txt_slice));
+  shp_env_r.setBounds(grd.cell(3,9,2,1).removeFromRight(txt_slice));
 
-  //panel 6
-  amp_env_a.setBounds(gridbox(5,2));
-  amp_env_d.setBounds(gridbox(5,4));
-  amp_env_s.setBounds(gridbox(5,6));
-  amp_env_r.setBounds(gridbox(5,8));
+  //amp env
+  amp_env_a.setBounds(grd.cell(4,2,2,1));
+  amp_env_d.setBounds(grd.cell(4,4,2,1));
+  amp_env_s.setBounds(grd.cell(4,6,2,1));
+  amp_env_r.setBounds(grd.cell(4,8,2,1));
 }
 
 void::gui::oscil_interface::background::paint(gfx &g)
@@ -107,98 +121,121 @@ void::gui::oscil_interface::background::paint(gfx &g)
   int fh = static_cast<int>(fnt.getHeight());
   rect text_box = {(getWidth()-tw)/2 - 1,0,tw+2,fh+2};
   int text_center_line = (fh+2)/2;
- 
-  //====Wave and Tune====
-  g.setColour(cga::white);
-  g.drawRect(0,text_center_line,250,getHeight()-text_center_line);
+  rect frame = {0,text_center_line,getWidth(),getHeight()-text_center_line};
+  
+  grid grd = {{0,text_box.getBottom(),getWidth(),getHeight()-text_box.getBottom()},10,5};
+  int txt_slice = 60;
 
-  g.setColour(cga::hi_cyan);
-  g.fillRect(gridbox(0, 0));
-  g.setColour(cga::black);
-  g.drawText("BASE",gridbox(0,0),jst::centred);
+  //pitch panel
+  {
+    auto panel_bounds = grd.cell_rect(0,0,1,10);
 
-  g.setColour(cga::grey);
-  g.drawText("waveform",gridbox(0,1),jst::centred);
-  g.drawText("tune",gridbox(0,3),jst::centred);
-  g.drawText("window",gridbox(0,6),jst::centred);
+    g.setColour(cga::white);
+    g.drawRect(panel_bounds.getX(),text_center_line,panel_bounds.getWidth(),frame.getHeight());
 
-  //====Phase Distortion====
-  g.setColour(cga::white);
-  g.drawRect(250,text_center_line,250,getHeight()-text_center_line);
+    g.setColour(cga::hi_cyan);
+    g.fillRect(grd.cell(0,0,2,1));
+    g.setColour(cga::black);
+    g.drawText("PITCH",grd.cell(0,0),jst::centred);
 
-  g.setColour(cga::hi_cyan);
-  g.fillRect(gridbox(1, 0));
-  g.setColour(cga::black);
-  g.drawText("PHASE DISTORTION",gridbox(1,0),jst::centred);
+    g.setColour(cga::grey);
+    g.drawText("envelope",grd.cell(0,4),jst::centred);
+    g.drawText("AMT",grd.cell(0,5).removeFromLeft(txt_slice),jst::centred);
+    g.drawText("A",grd.cell(0,6).removeFromLeft(txt_slice),jst::centred);
+    g.drawText("D",grd.cell(0,7).removeFromLeft(txt_slice),jst::centred);
+    g.drawText("S",grd.cell(0,8).removeFromLeft(txt_slice),jst::centred);
+    g.drawText("R",grd.cell(0,9).removeFromLeft(txt_slice),jst::centred);
+  }
 
-  g.setColour(cga::grey);
-  g.drawText("shaper",gridbox(1,1),jst::centred);
-  g.drawText("base_PD",gridbox(1,3),jst::centred);
-  g.drawText("env_amt",gridbox(1,5),jst::centred);
+  //wave_panel
+  {
+    auto panel_bounds = grd.cell_rect(1,0,1,10);
 
-  //====Waveshaper====
-  g.setColour(cga::white);
-  g.drawRect(500,text_center_line,250,getHeight()-text_center_line);
+    g.setColour(cga::white);
+    g.drawRect(panel_bounds.getX(),text_center_line,panel_bounds.getWidth(),frame.getHeight());
 
-  g.setColour(cga::hi_cyan);
-  g.fillRect(gridbox(2, 0));
-  g.setColour(cga::black);
-  g.drawText("WAVE SHAPER",gridbox(2,0),jst::centred);
+    g.setColour(cga::hi_cyan);
+    g.fillRect(grd.cell(1,0,2,1));
+    g.setColour(cga::black);
+    g.drawText("WAVEFORM",grd.cell(1,0),jst::centred);
 
-  g.setColour(cga::grey);
-  g.drawText("wave_shaper",gridbox(2,1),jst::centred);
-  g.drawText("base_distortion",gridbox(2,3),jst::centred);
-  g.drawText("env_amt",gridbox(2,5),jst::centred);
+    g.setColour(cga::grey);
+    g.drawText("window",grd.cell(1,2),jst::centred);
+  }
 
-  //====PD envelope====
-  g.setColour(cga::white);
-  g.drawRect(750,text_center_line,250,getHeight()-text_center_line);
+  //phase shaper
+  {
+    auto panel_bounds = grd.cell_rect(2,0,1,10);
 
-  g.setColour(cga::hi_cyan);
-  g.fillRect(gridbox(3, 0));
-  g.setColour(cga::black);
-  g.drawText("PD ENV",gridbox(3,0),jst::centred);
+    g.setColour(cga::white);
+    g.drawRect(panel_bounds.getX(),text_center_line,panel_bounds.getWidth(),frame.getHeight());
 
-  g.setColour(cga::grey);
-  g.drawText("attack",gridbox(3,1),jst::centred);
-  g.drawText("decay",gridbox(3,3),jst::centred);
-  g.drawText("sustain",gridbox(3,5),jst::centred);
-  g.drawText("release",gridbox(3,7),jst::centred);
+    g.setColour(cga::hi_cyan);
+    g.fillRect(grd.cell(2,0,2,1));
+    g.setColour(cga::black);
+    g.drawText("PHASE DISTORT",grd.cell(2,0),jst::centred);
 
-  //====Waveshaper env====
-  g.setColour(cga::white);
-  g.drawRect(1000,text_center_line,250,getHeight()-text_center_line);
+    g.setColour(cga::grey);
+    g.drawText("envelope",grd.cell(2,4),jst::centred);
+    g.drawText("AMT",grd.cell(2,5,1).removeFromLeft(txt_slice),jst::centred);
+    g.drawText("A",grd.cell(2,6,1).removeFromLeft(txt_slice),jst::centred);
+    g.drawText("D",grd.cell(2,7,1).removeFromLeft(txt_slice),jst::centred);
+    g.drawText("S",grd.cell(2,8,1).removeFromLeft(txt_slice),jst::centred);
+    g.drawText("R",grd.cell(2,9,1).removeFromLeft(txt_slice),jst::centred);
+  }
 
-  g.setColour(cga::hi_cyan);
-  g.fillRect(gridbox(4, 0));
-  g.setColour(cga::black);
-  g.drawText("SHAPER ENV",gridbox(4,0),jst::centred);
+  //wave shaper
+  {
+    auto panel_bounds = grd.cell_rect(3,0,1,10);
 
-  g.setColour(cga::grey);
-  g.drawText("attack",gridbox(4,1),jst::centred);
-  g.drawText("decay",gridbox(4,3),jst::centred);
-  g.drawText("sustain",gridbox(4,5),jst::centred);
-  g.drawText("release",gridbox(4,7),jst::centred);
+    g.setColour(cga::white);
+    g.drawRect(panel_bounds.getX(),text_center_line,panel_bounds.getWidth(),frame.getHeight());
 
-  //====Amp Env
-  g.setColour(cga::white);
-  g.drawRect(1250,text_center_line,250,getHeight()-text_center_line);
+    g.setColour(cga::hi_cyan);
+    g.fillRect(grd.cell(3,0,2,1));
+    g.setColour(cga::black);
+    g.drawText("WAVE SHAPER",grd.cell(3,0),jst::centred);
 
-  g.setColour(cga::hi_cyan);
-  g.fillRect(gridbox(5, 0));
-  g.setColour(cga::black);
-  g.drawText("AMP ENV",gridbox(5,0),jst::centred);
+    g.setColour(cga::grey);
+    g.drawText("envelope",grd.cell(3,3),jst::centred);
+    g.drawText("AMT",grd.cell(3,5,1).removeFromLeft(txt_slice),jst::centred);
+    g.drawText("A",grd.cell(3,6,1).removeFromLeft(txt_slice),jst::centred);
+    g.drawText("D",grd.cell(3,7,1).removeFromLeft(txt_slice),jst::centred);
+    g.drawText("S",grd.cell(3,8,1).removeFromLeft(txt_slice),jst::centred);
+    g.drawText("R",grd.cell(3,9,1).removeFromLeft(txt_slice),jst::centred);
+  }
 
-  g.setColour(cga::grey);
-  g.drawText("attack",gridbox(5,1),jst::centred);
-  g.drawText("decay",gridbox(5,3),jst::centred);
-  g.drawText("sustain",gridbox(5,5),jst::centred);
-  g.drawText("release",gridbox(5,7),jst::centred);
+  //amp env
+  {
+    auto panel_bounds = grd.cell_rect(4,0,1,10);
 
-  //===DONE WITH THE PANELS====
+    g.setColour(cga::white);
+    g.drawRect(panel_bounds.getX(),text_center_line,panel_bounds.getWidth(),frame.getHeight());
+
+    g.setColour(cga::hi_cyan);
+    g.fillRect(grd.cell(4,0,2,1));
+    g.setColour(cga::black);
+    g.drawText("AMP ENV",grd.cell(4,0),jst::centred);
+
+    g.setColour(cga::grey);
+    g.drawText("attack",grd.cell(4,1,1),jst::centred);
+    g.drawText("decay",grd.cell(4,3,1),jst::centred);
+    g.drawText("sustain",grd.cell(4,5,1),jst::centred);
+    g.drawText("release",grd.cell(4,7,1),jst::centred);
+  }
+
+
   g.setColour(cga::black);
   g.fillRect(text_box);
 
   g.setColour(cga::white);
   g.drawText(panel_name,text_box,jst::centred,false);
+}
+
+Rectangle<int> gui::oscil_interface::background::text_box()
+{
+  Font fnt; //default constructor should get you the right things
+  int tw = fnt.getStringWidth(panel_name);
+  int fh = static_cast<int>(fnt.getHeight());
+  return {(getWidth()-tw)/2 - 1,0,tw+2,fh+2};
 }

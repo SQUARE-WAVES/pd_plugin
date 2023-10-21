@@ -9,10 +9,12 @@ pd_amt(0.0f,0.0f,0.99f),
 pd_env_amt(0.0f,0.0f,0.99f),
 shp_amt(0.0f,0.0f,1.0f),
 shp_env_amt(0.0f,0.0f,1.0f),
+pitch_env_amt(0.0f,-24.0f,24.0),
 tune(0.0f,-12.0f,12.0f),
 amp_env(0.01f,0.1f,1.0f,0.01f),
 pd_env(0.01f,0.1f,1.0f,0.01f),
-shp_env(0.01f,0.1f,1.0f,0.01f)
+shp_env(0.01f,0.1f,1.0f,0.01f),
+pitch_env(0.01f,0.1f,1.0f,0.01f)
 {
 }
 
@@ -32,9 +34,16 @@ void oscil_line::update()
   shp_amt.update();
   shp_env_amt.update();
 
-  tune.update();
+  pitch_env_amt.update();
 
-  float tuned_freq = freq * std::exp2(tune.value()/12.0f);
+  amp_env.update();
+  pd_env.update();
+  shp_env.update();
+  pitch_env.update();
+
+  tune.update();
+  float pitch_env_val = pitch_env_amt.value() * pitch_env.value();
+  float tuned_freq = freq * std::exp2((tune.value() + pitch_env_val)/12.0f);
   osc.phasor.set_frequency(tuned_freq);
 
   osc.pd_amt = pd_amt.value() + (pd_env_amt.value() * pd_env.value());
@@ -44,19 +53,15 @@ void oscil_line::update()
   osc.shp_amt = shp_amt.value() + (shp_env_amt.value() * shp_env.value());
   osc.shp_amt = std::clamp(osc.shp_amt,0.0f,1.0f);
 
-
   osc.update();
-
-  amp_env.update();
-  pd_env.update();
-  shp_env.update();
-
-  //ok figure this one out
-  }
+}
 
 void oscil_line::set_samplerate(float sr)
 {
   amp_env.set_samplerate(sr);
+  pd_env.set_samplerate(sr);
+  shp_env.set_samplerate(sr);
+  pitch_env.set_samplerate(sr);
   osc.phasor.set_samplerate(sr);
 }
 
@@ -71,6 +76,7 @@ void oscil_line::set_gate(bool g)
   amp_env.set_gate(g);
   pd_env.set_gate(g);
   shp_env.set_gate(g);
+  pitch_env.set_gate(g);
 }
 
 void oscil_line::set_wave(waveform wf)
@@ -96,6 +102,11 @@ void oscil_line::set_waveshaper(waveshaper shp)
 void oscil_line::set_tune(float t)
 {
   tune.set_target(t);
+}
+
+void oscil_line::set_ptch_env_amt(float v)
+{
+  pitch_env_amt.set_target(v);
 }
 
 void oscil_line::set_pd(float v)
@@ -176,4 +187,24 @@ void oscil_line::shp_s(float v)
 void oscil_line::shp_r(float v)
 {
   shp_env.set_r(v);
+}
+
+void oscil_line::ptch_a(float v)
+{
+  pitch_env.set_a(v);
+}
+
+void oscil_line::ptch_d(float v)
+{
+  pitch_env.set_d(v);
+}
+
+void oscil_line::ptch_s(float v)
+{
+  pitch_env.set_s(v);
+}
+
+void oscil_line::ptch_r(float v)
+{
+  pitch_env.set_r(v);
 }

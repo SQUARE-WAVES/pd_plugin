@@ -87,7 +87,4 @@ class pd_proc : public juce::AudioProcessor
   void setStateInformation(const void* data, int size) override;
 };
 
-
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter();
-
-

@@ -9,57 +9,57 @@ int gui::grid::row_h() const
 
 int gui::grid::col_w() const
 {
-  return bounds.getWidth() / rows;
+  return bounds.getWidth() / cols;
 }
 
-rect gui::grid::gridrow(const int y) const
+rect gui::grid::row(const int y, const int xpd,const int ypd) const
 {
   const rect out = 
   {
-    padding, 
-    (y * row_h() ) +padding, 
-    bounds.getWidth() - (2*padding),
-    row_h() - (2 * padding)
+    bounds.getX() + xpd, 
+    bounds.getY() + (y * row_h() ) + ypd, 
+    bounds.getWidth() - (2 * xpd),
+    row_h() - (2 * ypd)
   };
 
   return out;
 }
 
-rect gui::grid::gridcol(int x) const
+rect gui::grid::col(int x, const int xpd, const int ypd) const
 {
   const rect out =
   {
-    (x * col_w()) + padding,
-    padding,
-    col_w() - ( 2 * padding),
-    bounds.getHeight() - (2 * padding)
+    bounds.getX() + (x * col_w()) + xpd,
+    bounds.getY() + ypd,
+    col_w() - ( 2 * xpd),
+    bounds.getHeight() - (2 * ypd)
   };
 
   return out;
 }
 
-rect gui::grid::gridbox(int x, int y) const
+rect gui::grid::cell(int x, int y, const int xpd, const int ypd) const
 {
-  const int corner_x = x * col_w();
-  const int corner_y = y * row_h();
+  const int corner_x = bounds.getX() + (x * col_w());
+  const int corner_y = bounds.getY() + (y * row_h());
       
   return {
-    corner_x + padding,
-    corner_y + padding,
-    col_w() - (2*padding),
-    row_h() - (2*padding)
+    corner_x + xpd,
+    corner_y + ypd,
+    col_w() - (2*xpd),
+    row_h() - (2*ypd)
   };
 }
 
-rect gui::grid::gridrect(int x, int y, int w, int h) const
+rect gui::grid::cell_rect(int x, int y, int w, int h, const int xpd, const int ypd) const
 {
-  const int corner_x = x * col_w();
-  const int corner_y = y * row_h();
+  const int corner_x = bounds.getX() + (x * col_w());
+  const int corner_y = bounds.getY() + (y * row_h());
 
   return {
-    corner_x + padding,
-    corner_y + padding,
-    w * col_w() - (2*padding),
-    h * row_h() - (2*padding)
+    corner_x + xpd,
+    corner_y + ypd,
+    w * col_w() - (2*xpd),
+    h * row_h() - (2*ypd)
   };
 }
