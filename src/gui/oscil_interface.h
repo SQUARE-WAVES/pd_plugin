@@ -5,6 +5,7 @@
 #include "grid.h"
 #include "sliders.h"
 #include "butttons.h"
+#include "wave_drawer.h"
 
 namespace gui
 {
@@ -71,6 +72,8 @@ namespace gui
     bar_slider pitch_env_d;
     bar_slider pitch_env_s;
     bar_slider pitch_env_r;
+
+    wave_drawer wd;
 
     public:
     oscil_interface(juce::AudioProcessorValueTreeState& st,str prefix,str panel_name);

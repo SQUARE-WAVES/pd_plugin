@@ -26,8 +26,7 @@ class mono_voicer
  
   inline void set_note_freq(bool legato = false)
   {
-    float note = static_cast<float>(current_note - 69)/12.0f;
-    float target = std::exp2f(note);
+    float target = static_cast<float>(current_note);
 
     if(legato && port_time > 0.0f)
     {
@@ -50,9 +49,10 @@ class mono_voicer
    bool note_off(int nn);
 
    void set_pitch_bend(int bend_amount);
+   void set_bend_range(float range);
 
    bool gate();
-   float freq();
+   float freq(float input = 0.0f);
 };
 
 #endif

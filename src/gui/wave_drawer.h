@@ -18,8 +18,6 @@ namespace gui
     using cparam = juce::AudioParameterChoice;
     using fparam = juce::AudioParameterFloat;
 
-    str panel_name;
-
     cparam* wave;
     cparam* ps;
     cparam* ws;
@@ -35,7 +33,7 @@ namespace gui
     void parameterGestureChanged(int,bool) override;
 
     public:
-      wave_drawer(vts& st,str pname,str p1,str p2,str p3, str p4,str p5,str p6);
+      wave_drawer(vts& st,str p1,str p2,str p3, str p4,str p5,str p6);
       ~wave_drawer() override;
       void paint(gfx& g) override;  
   };

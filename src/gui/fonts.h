@@ -1,7 +1,7 @@
 #pragma once
 
 #include <juce_graphics/juce_graphics.h>
-#include <juce_binarydata_fonts/JuceLibraryCode/font_binary.h>
+#include <font_binary.h>
 
 namespace gui
 {

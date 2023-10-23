@@ -7,8 +7,7 @@
 #include "synth/pd_syn.h"
 #include "gui/butttons.h"
 #include "gui/oscil_interface.h"
-#include "gui/mixer_interface.h"
-#include "gui/voicer_interface.h"
+#include "gui/midline_interface.h"
 #include "gui/wave_drawer.h"
 
 class pd_proc : public juce::AudioProcessor
@@ -26,12 +25,8 @@ class pd_proc : public juce::AudioProcessor
     pd_proc& proc;
 
     gui::oscil_interface o1;
+    gui::midline_interface mid;
     gui::oscil_interface o2;
-    gui::mixer_interface mix;
-    gui::voicer_interface vox;
-
-    gui::wave_drawer draw1;
-    gui::wave_drawer draw2;
 
     public:
     editor(pd_proc& pxer);

@@ -16,10 +16,17 @@ float pd_syn::value()
 
 void pd_syn::update()
 {
-  voicer.update();
+  const float lfo_v = pitch_lfo.value();
+  pitch_lfo.update();
 
-  osc1.set_freq(voicer.freq());
-  osc2.set_freq(voicer.freq());
+  voicer.update();
+  pitch_lfo.update();
+
+  const float o1f = voicer.freq((lfo_v*o1_lfo_amt.value()));
+  osc1.set_freq(o1f);
+
+  const float o2f = voicer.freq((lfo_v*o2_lfo_amt.value()));
+  osc2.set_freq(o2f);
 
   osc1.update();
   osc2.update();
@@ -27,6 +34,8 @@ void pd_syn::update()
   o1_vol.update();
   o2_vol.update();
   xmod_vol.update();
+  o1_lfo_amt.update();
+  o2_lfo_amt.update();
 }
 
 void pd_syn::set_samplerate(float sr)

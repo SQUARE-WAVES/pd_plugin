@@ -3,8 +3,7 @@
 
 using namespace juce;
 
-gui::wave_drawer::wave_drawer(vts& st,str pname,str p1,str p2, str p3, str p4, str p5, str p6):
-panel_name(pname),
+gui::wave_drawer::wave_drawer(vts& st,str p1,str p2, str p3, str p4, str p5, str p6):
 wave(static_cast<cparam*>(st.getParameter(p1))),
 ps(static_cast<cparam*>(st.getParameter(p2))),
 ws(static_cast<cparam*>(st.getParameter(p3))),
@@ -59,21 +58,12 @@ void gui::wave_drawer::paint(gfx& g)
   g.setColour(cga::black);
   g.fillAll();
 
-  auto fnt = g.getCurrentFont();
-  int tw = fnt.getStringWidth(panel_name);
-  int fh = static_cast<int>(fnt.getHeight());
-  rect text_box = {(getWidth()-tw)/2 - 1,0,tw+2,fh+2};
-
   const rect db = {
     2,
-    text_box.getBottom() + 1,
+    1,
     getWidth()-4,
-    getHeight() - (text_box.getBottom() + 2)
+    getHeight() - 2
   };
-
-  //frame
-  g.setColour(cga::white);
-  g.drawRect(0,text_box.getCentreY(),getWidth(),getHeight()-text_box.getCentreY());
 
   //mid line
   g.setColour(cga::grey);
@@ -103,11 +93,4 @@ void gui::wave_drawer::paint(gfx& g)
     g.drawRect(x,top,1,std::max(dist,1));
     last_y = y;
   }
-
-  //the text
-  g.setColour(cga::black);
-  g.fillRect(text_box);
-  g.setColour(cga::white);
-  g.drawText(panel_name,text_box,jst::centred);
-
 }

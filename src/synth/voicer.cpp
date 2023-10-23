@@ -1,8 +1,8 @@
 #include "voicer.h"
 
 mono_voicer::mono_voicer():
-note_freq(1.0f,0.0f,30.0f),
-bend_freq(1.0f,0.0f,30.0f)
+note_freq(69.0f,0.0f,127.0f),
+bend_freq(0.0f,-12.0f,12.0f)
 {
   for(bool& b : notes)
   {
@@ -74,9 +74,10 @@ bool mono_voicer::gate()
   return current_note != -1;
 }
 
-float mono_voicer::freq()
+
+float mono_voicer::freq(float input)
 {
-  return 440.0f * (note_freq.value()*bend_freq.value());
+  return 440.0f * std::exp2f( (note_freq.value() + bend_freq.value() + input - 69.0f)/12.0f );
 }
 
 void mono_voicer::update()
@@ -94,5 +95,10 @@ void mono_voicer::set_pitch_bend(int bend_amt)
 {
   const static float BEND_MAX = 16383.0f;
   float bend_xp = (2.0f * (static_cast<float>(bend_amt)/BEND_MAX)) - 1.0f;
-  bend_freq.set_target(std::exp2(bend_xp));
+  bend_freq.set_target(bend_range * bend_xp);
+}
+
+void mono_voicer::set_bend_range(float range)
+{
+  bend_range = range;
 }

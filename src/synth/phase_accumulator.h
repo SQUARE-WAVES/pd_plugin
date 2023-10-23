@@ -42,6 +42,11 @@ class phase_accumulator
     float wrapped = fmodf(next_phase,max);
     current_phase = (wrapped < 0) ? max + wrapped : wrapped;
   }
+
+  inline void reset()
+  {
+    current_phase = 0.0f;
+  }
 };
 
 #endif

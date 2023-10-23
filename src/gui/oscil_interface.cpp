@@ -31,7 +31,15 @@ pitch_env_amt(st,pfx + "_pitch_env_amt"),
 pitch_env_a(st,pfx + "_pitch_env_attack"),
 pitch_env_d(st,pfx + "_pitch_env_decay"),
 pitch_env_s(st,pfx + "_pitch_env_sustain"),
-pitch_env_r(st,pfx + "_pitch_env_release")
+pitch_env_r(st,pfx + "_pitch_env_release"),
+wd(st,
+  pfx + "_wave",
+  pfx + "_phaseshaper",
+  pfx + "_waveshaper",
+  pfx + "_window",
+  pfx + "_pd_base",
+  pfx + "_waveshaper_base"
+)
 {
   addAndMakeVisible(&bg);
   addAndMakeVisible(&wave);
@@ -61,6 +69,8 @@ pitch_env_r(st,pfx + "_pitch_env_release")
   addAndMakeVisible(&pitch_env_d);
   addAndMakeVisible(&pitch_env_s);
   addAndMakeVisible(&pitch_env_r);
+
+  addAndMakeVisible(&wd);
 }
 
 void gui::oscil_interface::resized()
@@ -68,7 +78,7 @@ void gui::oscil_interface::resized()
   bg.setBounds(0,0,1500,275);
 
   rect text_box = bg.text_box();
-  grid grd = {{0,text_box.getBottom(),1500,275-text_box.getBottom()},10,5};
+  grid grd = {{0,text_box.getBottom(),1500,275-text_box.getBottom()},10,6};
   int txt_slice = grd.col_w() - 60;
 
   //pitch controls
@@ -109,6 +119,9 @@ void gui::oscil_interface::resized()
   amp_env_d.setBounds(grd.cell(4,4,2,1));
   amp_env_s.setBounds(grd.cell(4,6,2,1));
   amp_env_r.setBounds(grd.cell(4,8,2,1));
+
+  //picture
+  wd.setBounds(grd.cell_rect(5,1,1,9,2,2));
 }
 
 void::gui::oscil_interface::background::paint(gfx &g)
@@ -123,7 +136,7 @@ void::gui::oscil_interface::background::paint(gfx &g)
   int text_center_line = (fh+2)/2;
   rect frame = {0,text_center_line,getWidth(),getHeight()-text_center_line};
   
-  grid grd = {{0,text_box.getBottom(),getWidth(),getHeight()-text_box.getBottom()},10,5};
+  grid grd = {{0,text_box.getBottom(),getWidth(),getHeight()-text_box.getBottom()},10,6};
   int txt_slice = 60;
 
   //pitch panel
@@ -224,6 +237,18 @@ void::gui::oscil_interface::background::paint(gfx &g)
     g.drawText("release",grd.cell(4,7,1),jst::centred);
   }
 
+  //drawer
+  {
+    auto panel_bounds = grd.cell_rect(5,0,1,10);
+
+    g.setColour(cga::white);
+    g.drawRect(panel_bounds.getX(),text_center_line,panel_bounds.getWidth(),frame.getHeight());
+
+    g.setColour(cga::hi_cyan);
+    g.fillRect(grd.cell(5,0,2,1));
+    g.setColour(cga::black);
+    g.drawText("VIEW",grd.cell(5,0),jst::centred);
+  }
 
   g.setColour(cga::black);
   g.fillRect(text_box);

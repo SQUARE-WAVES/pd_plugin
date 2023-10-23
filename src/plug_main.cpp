@@ -89,6 +89,7 @@ state(*this,nullptr,"state",
   ),
 
   std::make_unique<AudioProcessorParameterGroup>("osc2","osc2","-",
+  
     float_param("osc2_vol",0.0f,1.0f,0.5f),
     choice_param("osc2_wave",{"sin","cos"},0),
     float_param("osc2_tune",-12.0f,12.0f,0.0f),
@@ -131,6 +132,11 @@ state(*this,nullptr,"state",
   //shared stuff
   float_param("portamento",0.0f,1.0f,0.2f),
   float_param("cross_mod_vol",0.0f,1.0f,0.0f),
+  float_param("lfo_rate",0.01f,30.0f,0.01f),
+  float_param("o1_lfo_amt",0.0f,24.0f,0.0f),
+  float_param("o2_lfo_amt",0.0f,24.0f,0.0f),
+  choice_param("lfo_wave",{"sin","tri","saw","-saw","sqr"},0),
+  float_param("bend_range",0.0f,12.0f,2.0f)
 })
 {
 }
@@ -158,7 +164,6 @@ void pd_proc::releaseResources()
 
 void pd_proc::reset()
 {
-  
 }
 
 void pd_proc::do_parameters()
@@ -235,8 +240,14 @@ void pd_proc::do_parameters()
   synth.osc2.ptch_s(get_float_val(state,"osc2_pitch_env_sustain"));
   synth.osc2.ptch_r(get_float_val(state,"osc2_pitch_env_release"));
 
+  //================================================================================
   synth.portamento_time(get_float_val(state,"portamento"));
   synth.xmod_vol.set_target(get_float_val(state,"cross_mod_vol"));
+  synth.pitch_lfo.set_rate(get_float_val(state,"lfo_rate"));
+  synth.o1_lfo_amt.set_target(get_float_val(state,"o1_lfo_amt"));
+  synth.o2_lfo_amt.set_target(get_float_val(state,"o2_lfo_amt"));
+  synth.pitch_lfo.set_wave(get_enum_choice<lfo::wave>(state,"lfo_wave"));
+  synth.voicer.set_bend_range(get_float_val(state,"bend_range"));
 }
 
 void pd_proc::handle_midi_message(const juce::MidiMessage m)
