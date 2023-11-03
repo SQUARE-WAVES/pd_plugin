@@ -1,6 +1,7 @@
 #pragma once
 
 #include <juce_gui_basics/juce_gui_basics.h>
+#include "types.h"
 #include "colors.h"
 #include "grid.h"
 #include "sliders.h"
@@ -11,12 +12,6 @@ namespace gui
 {
   class oscil_interface : public juce::Component
   {
-    using gfx = juce::Graphics;
-    using str = juce::String;
-    using color = juce::Colour;
-    using rect = juce::Rectangle<int>;
-    using jst = juce::Justification;
-
     class background : public juce::Component
     {
       str panel_name;

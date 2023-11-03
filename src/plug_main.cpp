@@ -15,10 +15,10 @@ static std::unique_ptr<fparam> float_param(String name, float min, float max, fl
   return std::make_unique<fparam>(ParameterID{name,1},name,rng<float>(min,max),start);
 }
 
-/*static std::unique_ptr<iparam> int_param(String name, int min, int max, int start)
+static std::unique_ptr<iparam> int_param(String name, int min, int max, int start)
 {
   return std::make_unique<iparam>(ParameterID{name,1},name,min,max,start);
-}*/
+}
 
 static std::unique_ptr<cparam> choice_param(String name,const StringArray& choices,int start)
 {
@@ -30,10 +30,10 @@ static float get_float_val(AudioProcessorValueTreeState& state,String name)
   return static_cast<fparam*>(state.getParameter(name))->get();
 }
 
-/*static int get_int_val(AudioProcessorValueTreeState& state,String name)
+static int get_int_val(AudioProcessorValueTreeState& state,String name)
 {
   return static_cast<iparam*>(state.getParameter(name))->get();
-}*/
+}
 
 static int get_choice_val(AudioProcessorValueTreeState& state,String name)
 {
@@ -136,7 +136,8 @@ state(*this,nullptr,"state",
   float_param("o1_lfo_amt",0.0f,24.0f,0.0f),
   float_param("o2_lfo_amt",0.0f,24.0f,0.0f),
   choice_param("lfo_wave",{"sin","tri","saw","-saw","sqr"},0),
-  float_param("bend_range",0.0f,12.0f,2.0f)
+  float_param("bend_range",0.0f,12.0f,2.0f),
+  int_param("voices",1,8,8)
 })
 {
 }
@@ -154,6 +155,7 @@ bool pd_proc::isBusesLayoutSupported (const BusesLayout& layouts) const
 
 void pd_proc::prepareToPlay(double sr, int )
 {
+  synth.voicer.set_max(1);
   synth.set_samplerate(static_cast<float>(sr));
 }
 
@@ -168,86 +170,157 @@ void pd_proc::reset()
 
 void pd_proc::do_parameters()
 {
-  synth.o1_vol.set_target(get_float_val(state,"osc1_vol"));
+  auto osc1_vol = get_float_val(state,"osc1_vol");
+  auto osc1_wave = get_enum_choice<waveform>(state,"osc1_wave");
+  auto osc1_tune = get_float_val(state,"osc1_tune");
+  auto osc1_window = get_enum_choice<window>(state,"osc1_window");
+  auto osc1_phaseshaper = get_enum_choice<phase_shaper>(state,"osc1_phaseshaper");
+  auto osc1_pd_base = get_float_val(state,"osc1_pd_base");
+  auto osc1_pd_env_amt = get_float_val(state,"osc1_pd_env_amt");
 
-  synth.osc1.set_wave(get_enum_choice<waveform>(state,"osc1_wave"));
-  synth.osc1.set_tune(get_float_val(state,"osc1_tune"));
+  auto osc1_waveshaper = get_enum_choice<waveshaper>(state,"osc1_waveshaper");
+  auto osc1_waveshaper_base = get_float_val(state,"osc1_waveshaper_base");
+  auto osc1_waveshaper_env_amt = get_float_val(state,"osc1_waveshaper_env_amt");
 
-  synth.osc1.set_window(get_enum_choice<window>(state,"osc1_window"));
+  auto osc1_amp_env_attack = get_float_val(state,"osc1_amp_env_attack");
+  auto osc1_amp_env_decay = get_float_val(state,"osc1_amp_env_decay");
+  auto osc1_amp_env_sustain = get_float_val(state,"osc1_amp_env_sustain");
+  auto osc1_amp_env_release = get_float_val(state,"osc1_amp_env_release");
 
-  synth.osc1.set_phaseshaper(get_enum_choice<phase_shaper>(state,"osc1_phaseshaper"));
-  synth.osc1.set_pd(get_float_val(state,"osc1_pd_base"));
-  synth.osc1.set_pd_env_amt(get_float_val(state,"osc1_pd_env_amt"));
+  auto osc1_pd_env_attack = get_float_val(state,"osc1_pd_env_attack");
+  auto osc1_pd_env_decay = get_float_val(state,"osc1_pd_env_decay");
+  auto osc1_pd_env_sustain = get_float_val(state,"osc1_pd_env_sustain");
+  auto osc1_pd_env_release = get_float_val(state,"osc1_pd_env_release");
 
-  synth.osc1.set_waveshaper(get_enum_choice<waveshaper>(state,"osc1_waveshaper"));
-  synth.osc1.set_shp(get_float_val(state,"osc1_waveshaper_base"));
-  synth.osc1.set_shp_env_amt(get_float_val(state,"osc1_waveshaper_env_amt"));
+  auto osc1_shp_env_attack = get_float_val(state,"osc1_shp_env_attack");
+  auto osc1_shp_env_decay = get_float_val(state,"osc1_shp_env_decay");
+  auto osc1_shp_env_sustain = get_float_val(state,"osc1_shp_env_sustain");
+  auto osc1_shp_env_release = get_float_val(state,"osc1_shp_env_release");
 
-  synth.osc1.amp_a(get_float_val(state,"osc1_amp_env_attack"));
-  synth.osc1.amp_d(get_float_val(state,"osc1_amp_env_decay"));
-  synth.osc1.amp_s(get_float_val(state,"osc1_amp_env_sustain"));
-  synth.osc1.amp_r(get_float_val(state,"osc1_amp_env_release"));
+  auto osc1_pitch_env_amt = get_float_val(state,"osc1_pitch_env_amt");
+  auto osc1_pitch_env_attack = get_float_val(state,"osc1_pitch_env_attack");
+  auto osc1_pitch_env_decay = get_float_val(state,"osc1_pitch_env_decay");
+  auto osc1_pitch_env_sustain = get_float_val(state,"osc1_pitch_env_sustain");
+  auto osc1_pitch_env_release = get_float_val(state,"osc1_pitch_env_release");
 
-  synth.osc1.pd_a(get_float_val(state,"osc1_pd_env_attack"));
-  synth.osc1.pd_d(get_float_val(state,"osc1_pd_env_decay"));
-  synth.osc1.pd_s(get_float_val(state,"osc1_pd_env_sustain"));
-  synth.osc1.pd_r(get_float_val(state,"osc1_pd_env_release"));
+  auto osc2_vol = get_float_val(state,"osc2_vol");
+  auto osc2_wave = get_enum_choice<waveform>(state,"osc2_wave");
+  auto osc2_tune = get_float_val(state,"osc2_tune");
+  auto osc2_window = get_enum_choice<window>(state,"osc2_window");
+  auto osc2_phaseshaper = get_enum_choice<phase_shaper>(state,"osc2_phaseshaper");
+  auto osc2_pd_base = get_float_val(state,"osc2_pd_base");
+  auto osc2_pd_env_amt = get_float_val(state,"osc2_pd_env_amt");
 
-  synth.osc1.shp_a(get_float_val(state,"osc1_shp_env_attack"));
-  synth.osc1.shp_d(get_float_val(state,"osc1_shp_env_decay"));
-  synth.osc1.shp_s(get_float_val(state,"osc1_shp_env_sustain"));
-  synth.osc1.shp_r(get_float_val(state,"osc1_shp_env_release"));
+  auto osc2_waveshaper = get_enum_choice<waveshaper>(state,"osc2_waveshaper");
+  auto osc2_waveshaper_base = get_float_val(state,"osc2_waveshaper_base");
+  auto osc2_waveshaper_env_amt = get_float_val(state,"osc2_waveshaper_env_amt");
 
-  synth.osc1.set_ptch_env_amt(get_float_val(state,"osc1_pitch_env_amt"));
-  synth.osc1.ptch_a(get_float_val(state,"osc1_pitch_env_attack"));
-  synth.osc1.ptch_d(get_float_val(state,"osc1_pitch_env_decay"));
-  synth.osc1.ptch_s(get_float_val(state,"osc1_pitch_env_sustain"));
-  synth.osc1.ptch_r(get_float_val(state,"osc1_pitch_env_release"));
+  auto osc2_amp_env_attack = get_float_val(state,"osc2_amp_env_attack");
+  auto osc2_amp_env_decay = get_float_val(state,"osc2_amp_env_decay");
+  auto osc2_amp_env_sustain = get_float_val(state,"osc2_amp_env_sustain");
+  auto osc2_amp_env_release = get_float_val(state,"osc2_amp_env_release");
 
-  //================================================================================
-  synth.o2_vol.set_target(get_float_val(state,"osc2_vol"));
-  synth.osc2.set_wave(get_enum_choice<waveform>(state,"osc2_wave"));
-  synth.osc2.set_tune(get_float_val(state,"osc2_tune"));
+  auto osc2_pd_env_attack = get_float_val(state,"osc2_pd_env_attack");
+  auto osc2_pd_env_decay = get_float_val(state,"osc2_pd_env_decay");
+  auto osc2_pd_env_sustain = get_float_val(state,"osc2_pd_env_sustain");
+  auto osc2_pd_env_release = get_float_val(state,"osc2_pd_env_release");
 
-  synth.osc2.set_window(get_enum_choice<window>(state,"osc2_window"));
+  auto osc2_shp_env_attack = get_float_val(state,"osc2_shp_env_attack");
+  auto osc2_shp_env_decay = get_float_val(state,"osc2_shp_env_decay");
+  auto osc2_shp_env_sustain = get_float_val(state,"osc2_shp_env_sustain");
+  auto osc2_shp_env_release = get_float_val(state,"osc2_shp_env_release");
 
-  synth.osc2.set_phaseshaper(get_enum_choice<phase_shaper>(state,"osc2_phaseshaper"));
-  synth.osc2.set_pd(get_float_val(state,"osc2_pd_base"));
-  synth.osc2.set_pd_env_amt(get_float_val(state,"osc2_pd_env_amt"));
+  auto osc2_pitch_env_amt = get_float_val(state,"osc2_pitch_env_amt");
+  auto osc2_pitch_env_attack = get_float_val(state,"osc2_pitch_env_attack");
+  auto osc2_pitch_env_decay = get_float_val(state,"osc2_pitch_env_decay");
+  auto osc2_pitch_env_sustain = get_float_val(state,"osc2_pitch_env_sustain");
+  auto osc2_pitch_env_release = get_float_val(state,"osc2_pitch_env_release");
 
-  synth.osc2.set_waveshaper(get_enum_choice<waveshaper>(state,"osc2_waveshaper"));
-  synth.osc2.set_shp(get_float_val(state,"osc2_waveshaper_base"));
-  synth.osc2.set_shp_env_amt(get_float_val(state,"osc2_waveshaper_env_amt"));
+  auto o1_lfo_amt = get_float_val(state,"o1_lfo_amt");
+  auto o2_lfo_amt = get_float_val(state,"o2_lfo_amt");
+  auto cross_mod_vol = get_float_val(state,"cross_mod_vol");
 
-  synth.osc2.amp_a(get_float_val(state,"osc2_amp_env_attack"));
-  synth.osc2.amp_d(get_float_val(state,"osc2_amp_env_decay"));
-  synth.osc2.amp_s(get_float_val(state,"osc2_amp_env_sustain"));
-  synth.osc2.amp_r(get_float_val(state,"osc2_amp_env_release"));
+  for(auto& v : synth.voices)
+  {
+    v.o1_vol.set_target(osc1_vol);
+    v.osc1.set_wave(osc1_wave);
+    v.osc1.set_tune(osc1_tune);
+    v.osc1.set_window(osc1_window);
+    v.osc1.set_phaseshaper(osc1_phaseshaper);
+    v.osc1.set_pd(osc1_pd_base);
+    v.osc1.set_pd_env_amt(osc1_pd_env_amt);
 
-  synth.osc2.pd_a(get_float_val(state,"osc2_pd_env_attack"));
-  synth.osc2.pd_d(get_float_val(state,"osc2_pd_env_decay"));
-  synth.osc2.pd_s(get_float_val(state,"osc2_pd_env_sustain"));
-  synth.osc2.pd_r(get_float_val(state,"osc2_pd_env_release"));
+    v.osc1.set_waveshaper(osc1_waveshaper);
+    v.osc1.set_shp(osc1_waveshaper_base);
+    v.osc1.set_shp_env_amt(osc1_waveshaper_env_amt);
 
-  synth.osc2.shp_a(get_float_val(state,"osc2_shp_env_attack"));
-  synth.osc2.shp_d(get_float_val(state,"osc2_shp_env_decay"));
-  synth.osc2.shp_s(get_float_val(state,"osc2_shp_env_sustain"));
-  synth.osc2.shp_r(get_float_val(state,"osc2_shp_env_release"));
+    v.osc1.amp_a(osc1_amp_env_attack);
+    v.osc1.amp_d(osc1_amp_env_decay);
+    v.osc1.amp_s(osc1_amp_env_sustain);
+    v.osc1.amp_r(osc1_amp_env_release);
 
-  synth.osc2.set_ptch_env_amt(get_float_val(state,"osc2_pitch_env_amt"));
-  synth.osc2.ptch_a(get_float_val(state,"osc2_pitch_env_attack"));
-  synth.osc2.ptch_d(get_float_val(state,"osc2_pitch_env_decay"));
-  synth.osc2.ptch_s(get_float_val(state,"osc2_pitch_env_sustain"));
-  synth.osc2.ptch_r(get_float_val(state,"osc2_pitch_env_release"));
+    v.osc1.pd_a(osc1_pd_env_attack);
+    v.osc1.pd_d(osc1_pd_env_decay);
+    v.osc1.pd_s(osc1_pd_env_sustain);
+    v.osc1.pd_r(osc1_pd_env_release);
+
+    v.osc1.shp_a(osc1_shp_env_attack);
+    v.osc1.shp_d(osc1_shp_env_decay);
+    v.osc1.shp_s(osc1_shp_env_sustain);
+    v.osc1.shp_r(osc1_shp_env_release);
+
+    v.osc1.set_ptch_env_amt(osc1_pitch_env_amt);
+    v.osc1.ptch_a(osc1_pitch_env_attack);
+    v.osc1.ptch_d(osc1_pitch_env_decay);
+    v.osc1.ptch_s(osc1_pitch_env_sustain);
+    v.osc1.ptch_r(osc1_pitch_env_release);
+
+    //============================================================================
+    v.o2_vol.set_target(osc2_vol);
+    v.osc2.set_wave(osc2_wave);
+    v.osc2.set_tune(osc2_tune);
+    v.osc2.set_window(osc2_window);
+    v.osc2.set_phaseshaper(osc2_phaseshaper);
+    v.osc2.set_pd(osc2_pd_base);
+    v.osc2.set_pd_env_amt(osc2_pd_env_amt);
+
+    v.osc2.set_waveshaper(osc2_waveshaper);
+    v.osc2.set_shp(osc2_waveshaper_base);
+    v.osc2.set_shp_env_amt(osc2_waveshaper_env_amt);
+
+    v.osc2.amp_a(osc2_amp_env_attack);
+    v.osc2.amp_d(osc2_amp_env_decay);
+    v.osc2.amp_s(osc2_amp_env_sustain);
+    v.osc2.amp_r(osc2_amp_env_release);
+
+    v.osc2.pd_a(osc2_pd_env_attack);
+    v.osc2.pd_d(osc2_pd_env_decay);
+    v.osc2.pd_s(osc2_pd_env_sustain);
+    v.osc2.pd_r(osc2_pd_env_release);
+
+    v.osc2.shp_a(osc2_shp_env_attack);
+    v.osc2.shp_d(osc2_shp_env_decay);
+    v.osc2.shp_s(osc2_shp_env_sustain);
+    v.osc2.shp_r(osc2_shp_env_release);
+
+    v.osc2.set_ptch_env_amt(osc2_pitch_env_amt);
+    v.osc2.ptch_a(osc2_pitch_env_attack);
+    v.osc2.ptch_d(osc2_pitch_env_decay);
+    v.osc2.ptch_s(osc2_pitch_env_sustain);
+    v.osc2.ptch_r(osc2_pitch_env_release);
+    //============================================================================
+
+    v.o1_lfo_amt.set_target(o1_lfo_amt);
+    v.o2_lfo_amt.set_target(o2_lfo_amt);
+    v.xmod_vol.set_target(cross_mod_vol);
+  }
 
   //================================================================================
   synth.portamento_time(get_float_val(state,"portamento"));
-  synth.xmod_vol.set_target(get_float_val(state,"cross_mod_vol"));
   synth.pitch_lfo.set_rate(get_float_val(state,"lfo_rate"));
-  synth.o1_lfo_amt.set_target(get_float_val(state,"o1_lfo_amt"));
-  synth.o2_lfo_amt.set_target(get_float_val(state,"o2_lfo_amt"));
   synth.pitch_lfo.set_wave(get_enum_choice<lfo::wave>(state,"lfo_wave"));
-  synth.voicer.set_bend_range(get_float_val(state,"bend_range"));
+  synth.set_bend_range(get_float_val(state,"bend_range"));
+  synth.voicer.set_max(get_int_val(state,"voices"));
 }
 
 void pd_proc::handle_midi_message(const juce::MidiMessage m)
@@ -264,7 +337,7 @@ void pd_proc::handle_midi_message(const juce::MidiMessage m)
 
   if(m.isPitchWheel())
   {
-    synth.voicer.set_pitch_bend(m.getPitchWheelValue());
+    synth.set_pitch_bend(m.getPitchWheelValue());
   }
 }
   

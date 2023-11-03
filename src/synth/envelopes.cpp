@@ -69,6 +69,11 @@ void ADSR::update()
   }
 }
 
+bool ADSR::done()
+{
+  return stage == DONE;
+}
+
 void ADSR::set_gate(bool gv)
 {
   //if the gate is on and you set it off
@@ -95,7 +100,7 @@ void ADSR::a_stg()
   if(val >= 1.0f)
   {
     val = 1.0f;
-    stage = 2;
+    stage = DECAY;
   }
 }
 
@@ -106,7 +111,7 @@ void ADSR::d_stg()
   if(val <= sustain)
   {
     val = sustain;
-    stage = 3;
+    stage = SUSTAIN;
   }
 }
 
@@ -116,6 +121,6 @@ void ADSR::r_stg()
   if(val <= 0.0f)
   {
     val = 0.0f;
-    stage = 0;
+    stage = DONE;
   }
 }

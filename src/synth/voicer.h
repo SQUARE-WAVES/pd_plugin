@@ -1,58 +1,98 @@
 #ifndef VOICER_DOT_H
 #define VOICER_DOT_H
 
+#include <MacTypes.h>
 #include <cmath>
 #include <array>
 
 #include "target_param.h"
 
-class mono_voicer
+template <class voice_type> class mono_voicer
 {
   std::array<bool,128> notes;
   int current_note = -1;
-
-  bool set_note(int nn);
-  bool clear_note(int nn);
-  int low_note();
-
-  target_float note_freq = 0.0f;
-  target_float bend_freq = 0.0f;
-
-  float bend_range = 2.0f;
-  float pitch_bend = 0.0f;
-
-  float sr = 48000.0f;
   float port_time = 0.2f;
- 
-  inline void set_note_freq(bool legato = false)
-  {
-    float target = static_cast<float>(current_note);
 
-    if(legato && port_time > 0.0f)
+  bool set_note(int nn)
+  {
+    bool& n = notes.at(static_cast<size_t>(nn));
+    bool v = n;
+    n = true;
+    return !v;
+  }
+
+  bool clear_note(int nn)
+  {
+    bool& n = notes.at(static_cast<size_t>(nn));
+    bool v = n;
+    n = false;
+    return v;
+  }
+
+  int low_note()
+  {
+    for(size_t i=0;i<notes.size();++i)
     {
-      note_freq.set_timed(target,port_time,sr);
+      if(notes.at(i) == true)
+      {
+        return static_cast<int>(i);
+      }
     }
-    else 
-    {
-      note_freq.set_value(target);
-    }
+  
+    return -1;
   }
 
   public:
-   mono_voicer();
+  mono_voicer()
+  {
+    for(bool& b : notes)
+    {
+      b = false;
+    }
+  }
 
-   void update();
-   void set_samplerate(const float sr);
-   void set_portamento(float nt);
+  void set_portamento(float nt)
+  {
+    port_time = nt;
+  }
 
-   bool note_on(int nn);
-   bool note_off(int nn);
+  void note_on(int nn,voice_type& v)
+  {
+    if(set_note(nn))
+    {
+      bool legato = current_note != -1;
+      current_note = nn;
 
-   void set_pitch_bend(int bend_amount);
-   void set_bend_range(float range);
+      if(legato) 
+      {
+        v.set_freq_portamento(nn,port_time);
+      }
+      else
+      {
+        v.gate_on();
+        v.set_freq(current_note);
+      }
+    }
+  }
 
-   bool gate();
-   float freq(float input = 0.0f);
+  void note_off(int nn,voice_type& v)
+  {
+    clear_note(nn);
+
+    if(nn == current_note)
+    {
+      current_note = low_note();
+
+      if(current_note != -1)
+      {
+        v.set_freq(current_note);
+      }
+      else
+      {
+        v.gate_off();
+      }
+    }
+  }
 };
 
 #endif

@@ -1,5 +1,6 @@
 #include "voicer.h"
 
+/*
 mono_voicer::mono_voicer():
 note_freq(69.0f,0.0f,127.0f),
 bend_freq(0.0f,-12.0f,12.0f)
@@ -41,33 +42,10 @@ int mono_voicer::low_note()
 }
 
 bool mono_voicer::note_on(int nn)
-{
-  if(set_note(nn))
-  {
-    bool legato = current_note != -1;
-    current_note = nn;
-    set_note_freq(legato);
-  }
 
-  return gate();
-}
 
 bool mono_voicer::note_off(int nn)
-{
-  clear_note(nn);
 
-  if(nn == current_note)
-  {
-    current_note = low_note();
-
-    if(current_note != -1)
-    {
-      set_note_freq(false);
-    }
-  }
-
-  return gate();
-}
 
 bool mono_voicer::gate()
 {
@@ -101,4 +79,4 @@ void mono_voicer::set_pitch_bend(int bend_amt)
 void mono_voicer::set_bend_range(float range)
 {
   bend_range = range;
-}
+}*/

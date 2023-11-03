@@ -3,6 +3,7 @@
 
 class ADSR
 {
+  static const int DONE = 0;
   static const int ATTACK = 1;
   static const int DECAY = 2;
   static const int SUSTAIN = 3;
@@ -47,7 +48,9 @@ class ADSR
     }
 
     void update();
-    float value() const ;
+    float value() const;
+    bool done();
+
     void set_samplerate(float sr);
 
     void set_a(const float a);

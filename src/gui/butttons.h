@@ -3,19 +3,13 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <juce_audio_processors/juce_audio_processors.h>
 
+#include "types.h"
 #include "colors.h"
 
 namespace gui
 {
   class choice_bar : public juce::Component, juce::AudioParameterChoice::Listener
   {
-    using cparam = juce::AudioParameterChoice;
-    using gfx = juce::Graphics;
-    using str = juce::String;
-    using color = juce::Colour;
-    using rect = juce::Rectangle<int>;
-    using jst = juce::Justification;
-
     std::array<color,4> colors = 
     {
       cga::black,
@@ -89,12 +83,6 @@ namespace gui
 
   class preset_bar : public juce::Component, juce::AudioParameterFloat::Listener
   {
-    using fparam = juce::AudioParameterFloat;
-    using gfx = juce::Graphics;
-    using str = juce::String;
-    using color = juce::Colour;
-    using rect = juce::Rectangle<int>;
-    using jst = juce::Justification;
     using vec = std::vector<float>;
 
     vec presets;
@@ -172,5 +160,50 @@ namespace gui
     {
       //nothing
     }
+  };
+
+  class btn : public juce::Component 
+  {
+    str txt;
+    bool holding = false;
+
+    public:
+    btn(str text):txt(text)
+    {
+    }
+
+    void paint(gfx& g) override
+    {
+      auto bg = holding ? cga::magenta : cga::black;
+      g.setColour(bg);
+      g.fillAll();
+
+      g.setColour(cga::hi_cyan);
+      g.drawRect(0,0,getWidth(),getHeight());
+
+      g.setColour(cga::white);
+      g.drawText(txt,0,0,getWidth(),getHeight(),jst::centred);
+    }
+
+    void mouseDown(const mev& ev) override
+    {
+      if(ev.mods.isLeftButtonDown())
+      {
+        holding = true;
+        repaint();
+      }
+    }
+
+    void mouseUp(const mev& ev) override
+    {
+      if(holding && ev.mods.isLeftButtonDown())
+      {
+        holding = false;
+        repaint();
+        on_click();
+      }
+    }
+
+    virtual void on_click() = 0;
   };
 }

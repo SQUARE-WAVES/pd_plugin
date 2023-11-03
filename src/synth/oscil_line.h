@@ -4,7 +4,6 @@
 #include "target_param.h"
 #include "specialosc.h"
 #include "envelopes.h"
-#include "voicer.h"
 
 class oscil_line
 {
@@ -34,6 +33,7 @@ class oscil_line
 
     float value();
     void update();
+    bool done();
 
     void set_samplerate(float sr);
     
