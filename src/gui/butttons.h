@@ -162,6 +162,87 @@ namespace gui
     }
   };
 
+  class go_bar : public juce::Component
+  {
+    using str = juce::String;
+    using vec = std::vector<str>;
+
+    vec opts;
+    int selected = -1;
+ 
+    std::array<color,4> colors = 
+    {
+      cga::black,
+      cga::hi_cyan, 
+      cga::white, 
+      cga::magenta
+    };
+
+    inline int count()
+    { 
+      return static_cast<int>(opts.size()); 
+    }
+
+    inline str& opt(int idx)
+    {
+      return opts.at(static_cast<size_t>(idx));
+    }
+
+    public:
+    go_bar(vec&& ps):
+    opts(ps)
+    {
+    }
+
+    ~go_bar() override
+    {
+    }
+
+    void paint(gfx& g) override
+    {
+      int cw = (getWidth())/count();
+      int x = 0;
+      
+      g.setColour(colors[0]);
+      g.fillAll();
+
+      for(int i=0; i<count();++i)
+      {
+        rect bnds = {x,0,cw,getHeight()};
+
+        g.setColour(colors[1]);
+        g.drawRect(bnds);
+
+        if(i == selected)
+        {
+          g.setColour(colors[3]);
+          g.fillRect(bnds);
+        }
+
+        g.setColour(colors[2]);
+        g.drawFittedText(opt(i),bnds,jst::centred,1);
+        x += cw;
+      }
+    }
+
+    void mouseDown(const juce::MouseEvent& ev) override
+    {
+      auto cw = getWidth()/count();
+      int idx = ev.x/cw;
+      selected = idx;
+      go(idx);
+      repaint();
+    }
+
+    void mouseUp(const juce::MouseEvent& ) override
+    {
+      selected = -1;
+      repaint();
+    }
+
+    virtual void go(int idx) = 0;
+  };
+
   class btn : public juce::Component 
   {
     str txt;

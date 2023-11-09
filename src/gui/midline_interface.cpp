@@ -3,7 +3,7 @@
 
 using namespace juce;
 
-gui::midline_interface::midline_interface(AudioProcessorValueTreeState& st, str panel_name):
+gui::midline_interface::midline_interface(juce::AudioProcessor& proc,vts& st, str panel_name):
 bg(panel_name),
 porta(st,"portamento"),
 porta_pres(st,"portamento",{0.0f,0.1f,1.0f}),
@@ -11,6 +11,7 @@ voice_count(st,"voices"),
 bend_range(st,"bend_range"),
 p_lfo_rate(st,"lfo_rate"),
 p_lfo_wave(st,"lfo_wave"),
+p_lfo_sync(proc,st,"lfo_rate"),
 o1_lfo_amt(st,"o1_lfo_amt"),
 o2_lfo_amt(st,"o2_lfo_amt"),
 o1_out(st,"osc1_vol"),
@@ -73,6 +74,7 @@ mod_wheel(st,"mod_wheel")
   addAndMakeVisible(&bend_range);
   addAndMakeVisible(&p_lfo_rate);
   addAndMakeVisible(&p_lfo_wave);
+  addAndMakeVisible(&p_lfo_sync);
   addAndMakeVisible(&o1_lfo_amt);
   addAndMakeVisible(&o2_lfo_amt);
   addAndMakeVisible(&o1_out);
@@ -105,6 +107,7 @@ void gui::midline_interface::resized()
 
   //lfo
   p_lfo_rate.setBounds(grd.cell(1,2,2,1));
+  p_lfo_sync.setBounds(grd.cell(1,3,2,1));
   //this is where the sync bits will go
   p_lfo_wave.setBounds(grd.cell(1,5,2,1));
   o1_lfo_amt.setBounds(grd.cell(1,6,2,1).removeFromRight(txt_slice));

@@ -25,9 +25,10 @@ void pd_syn::update()
 
   float pw = pitch_lfo.value();
   float mw = mod_wheel.value();
-  float modifier = -mod_wheel_on;
+  float modifier = mod_wheel_on;
 
-  float total_pw = pw * (mw - (mw * modifier));
+  //some branchless nonsense
+  float total_pw = (pw * modifier) + pw * (mw - (mw * modifier));
   
   for(auto& v : voices)
   {
