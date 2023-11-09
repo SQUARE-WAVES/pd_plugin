@@ -15,7 +15,7 @@ struct pd_voice
   target_float note_freq = target_float(69.0f,0.0f,127.0f);
   target_float o1_lfo_amt = target_float(0.0f,0.0f,24.0f);
   target_float o2_lfo_amt = target_float(0.0f,0.0f,24.0f);
-
+  
   float samplerate = 48000.0f;
   bool gate = false;
 

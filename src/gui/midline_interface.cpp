@@ -63,7 +63,8 @@ btm_amp(st,"2->1",
   "osc2_amp_env_decay","osc1_amp_env_decay",
   "osc2_amp_env_sustain","osc1_amp_env_sustain",
   "osc2_amp_env_release","osc1_amp_env_release"
-)
+),
+mod_wheel(st,"mod_wheel")
 {
   addAndMakeVisible(&bg);
   addAndMakeVisible(&porta);
@@ -82,9 +83,11 @@ btm_amp(st,"2->1",
   addAndMakeVisible(&top_pd);
   addAndMakeVisible(&btm_pd);
   addAndMakeVisible(&top_ws);
+  addAndMakeVisible(&btm_ws);
   addAndMakeVisible(&btm_pd);
   addAndMakeVisible(&top_amp);
   addAndMakeVisible(&btm_amp);
+  addAndMakeVisible(&mod_wheel);
 }
 
 void gui::midline_interface::resized()
@@ -92,7 +95,7 @@ void gui::midline_interface::resized()
   bg.setBounds(0,0,1500,275);
   rect text_box = bg.text_box();
   grid grd = {{0,text_box.getBottom(),1500,275-text_box.getBottom()},10,6};
-  //int txt_slice = grd.col_w() - 60;
+  int txt_slice = grd.col_w() - 60;
   
   //voicer
   porta.setBounds(grd.cell(0,2,2,1));
@@ -104,8 +107,9 @@ void gui::midline_interface::resized()
   p_lfo_rate.setBounds(grd.cell(1,2,2,1));
   //this is where the sync bits will go
   p_lfo_wave.setBounds(grd.cell(1,5,2,1));
-  o1_lfo_amt.setBounds(grd.cell(1,7,2,1));
-  o2_lfo_amt.setBounds(grd.cell(1,9,2,1));
+  o1_lfo_amt.setBounds(grd.cell(1,6,2,1).removeFromRight(txt_slice));
+  o2_lfo_amt.setBounds(grd.cell(1,7,2,1).removeFromRight(txt_slice));
+  mod_wheel.setBounds(grd.cell(1,8,2,1).removeFromRight(txt_slice));
   
   //env sync
   int half_slice = grd.col_w()/2;
@@ -174,8 +178,9 @@ void gui::midline_interface::background::paint(gfx &g)
     g.setColour(cga::grey);
     g.drawText("rate",grd.cell(1,1),jst::centred);
     g.drawText("waveform",grd.cell(1,4),jst::centred);
-    g.drawText("osc1 amt",grd.cell(1,6),jst::centred);
-    g.drawText("osc2 amt",grd.cell(1,8),jst::centred);
+    g.drawText("o1",grd.cell(1,6).removeFromLeft(60),jst::centred);
+    g.drawText("o2",grd.cell(1,7).removeFromLeft(60),jst::centred);
+    g.drawText("mod",grd.cell(1,8).removeFromLeft(60),jst::centred);
   }
 
   //env sync

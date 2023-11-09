@@ -135,9 +135,24 @@ state(*this,nullptr,"state",
   float_param("lfo_rate",0.01f,30.0f,0.01f),
   float_param("o1_lfo_amt",0.0f,24.0f,0.0f),
   float_param("o2_lfo_amt",0.0f,24.0f,0.0f),
+  choice_param("mod_wheel",{"off","on"},0),
   choice_param("lfo_wave",{"sin","tri","saw","-saw","sqr"},0),
   float_param("bend_range",0.0f,12.0f,2.0f),
   int_param("voices",1,8,8)
+
+  /*
+  float_param("mod_lfo1_rate",0.01f,30.0f,0.01f),
+  float_param("mod1_o1_pd",0.0f,1.0f,0.0f),
+  float_param("mod1_o1_ws",0.0f,1.0f,0.0f),
+  float_param("mod1_o2_pd",0.0f,1.0f,0.0f),
+  float_param("mod1_o2_ws",0.0f,1.0f,0.0f),
+
+  float_param("mod_lfo2_rate",0.01f,30.0f,0.01f),
+  float_param("mod2_o1_pd",0.0f,1.0f,0.0f),
+  float_param("mod2_o1_ws",0.0f,1.0f,0.0f),
+  float_param("mod2_o2_pd",0.0f,1.0f,0.0f),
+  float_param("mod2_o2_ws",0.0f,1.0f,0.0f),
+  */
 })
 {
 }
@@ -321,6 +336,7 @@ void pd_proc::do_parameters()
   synth.pitch_lfo.set_wave(get_enum_choice<lfo::wave>(state,"lfo_wave"));
   synth.set_bend_range(get_float_val(state,"bend_range"));
   synth.voicer.set_max(get_int_val(state,"voices"));
+  synth.mw_on(static_cast<float>(get_choice_val(state, "mod_wheel")));
 }
 
 void pd_proc::handle_midi_message(const juce::MidiMessage m)
@@ -338,6 +354,11 @@ void pd_proc::handle_midi_message(const juce::MidiMessage m)
   if(m.isPitchWheel())
   {
     synth.set_pitch_bend(m.getPitchWheelValue());
+  }
+
+  if(m.isControllerOfType(1))
+  {
+    synth.set_mod_wheel(static_cast<float>(m.getControllerValue()));
   }
 }
   

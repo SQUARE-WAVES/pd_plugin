@@ -11,7 +11,9 @@ float pd_voice::value()
   float xmod = o1 * o2;
   float xmod_v = xmod_vol.value();
 
-  return (o1 * o1v) + (o2 * o2v) + (xmod * xmod_v);
+  float v = (o1 * o1v) + (o2 * o2v) + (xmod * xmod_v);
+  
+  return v;
 }
 
 void pd_voice::update(float lfo, float bend)

@@ -14,9 +14,9 @@ static void setup_styles()
 pd_proc::editor::editor(pd_proc& pxer):
 AudioProcessorEditor(pxer),
 proc(pxer),
-o1(proc.state,"osc1","oscil 1"),
+o1(proc.state,"osc1","[[oscil 1]]"),
 mid(proc.state,"-=mods=-"),
-o2(proc.state,"osc2","oscil 2")
+o2(proc.state,"osc2","[[oscil 2]]")
 {
   setup_styles();
   setSize(1500,900);

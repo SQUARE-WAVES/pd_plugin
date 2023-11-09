@@ -18,13 +18,22 @@ float pd_syn::value()
 void pd_syn::update()
 {
   pitch_lfo.update();
+  mod_lfo.update();
+
   bend_freq.update();
+  mod_wheel.update();
+
+  float pw = pitch_lfo.value();
+  float mw = mod_wheel.value();
+  float modifier = -mod_wheel_on;
+
+  float total_pw = pw * (mw - (mw * modifier));
   
   for(auto& v : voices)
   {
     if(!v.done())
     {
-      v.update(pitch_lfo.value(),bend_freq.value());
+      v.update(total_pw,bend_freq.value());
     }
   }
 }
@@ -67,69 +76,13 @@ void pd_syn::set_bend_range(float range)
   bend_range = range;
 }
 
-/*
-float pd_syn::value()
+
+void pd_syn::set_mod_wheel(float mw)
 {
-  float o1 = osc1.value();
-  float o2 = osc2.value();
-  
-  float o1v = o1_vol.value();
-  float o2v = o2_vol.value();
-
-  float xmod = o1 * o2;
-  float xmod_v = xmod_vol.value();
-
-  return (o1 * o1v) + (o2 * o2v) + (xmod * xmod_v);
+  mod_wheel.set_target(mw/127.0f);
 }
 
-void pd_syn::update()
+void pd_syn::mw_on(float on_off)
 {
-  const float lfo_v = pitch_lfo.value();
-  pitch_lfo.update();
-
-  voicer.update();
-  pitch_lfo.update();
-
-  const float o1f = voicer.freq((lfo_v*o1_lfo_amt.value()));
-  osc1.set_freq(o1f);
-
-  const float o2f = voicer.freq((lfo_v*o2_lfo_amt.value()));
-  osc2.set_freq(o2f);
-
-  osc1.update();
-  osc2.update();
-
-  o1_vol.update();
-  o2_vol.update();
-  xmod_vol.update();
-  o1_lfo_amt.update();
-  o2_lfo_amt.update();
+  mod_wheel_on = on_off;
 }
-
-void pd_syn::set_samplerate(float sr)
-{
-  osc1.set_samplerate(sr);
-  osc2.set_samplerate(sr);
-}
-
-void pd_syn::note_on(int nn)
-{
-  bool gate = voicer.note_on(nn);
-
-  osc1.set_gate(gate);
-  osc2.set_gate(gate);
-}
-
-void pd_syn::note_off(int nn)
-{
-  bool gate = voicer.note_off(nn);
-
-  osc1.set_gate(gate);
-  osc2.set_gate(gate);
-}
-
-void pd_syn::portamento_time(float nt)
-{
-  voicer.set_portamento(nt);
-}
-*/

@@ -73,6 +73,8 @@ namespace gui
     env_sync_btn top_amp;
     env_sync_btn btm_amp;
 
+    choice_bar mod_wheel;
+
     public:
     midline_interface(juce::AudioProcessorValueTreeState& st,str panel_name);
     void resized() override;
