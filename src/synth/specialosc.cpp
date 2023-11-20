@@ -71,10 +71,6 @@ float special_oscillator::calc_shaper(const float wave,const float shp_amt, cons
       return waveshapers::tri(wave, shp_amt);
     break;
 
-    case waveshaper::chb:
-      return waveshapers::cheby(wave,shp_amt);
-    break;
-
     case waveshaper::sin:
       return waveshapers::sin(wave,shp_amt);
     break;

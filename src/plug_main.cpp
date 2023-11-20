@@ -2,6 +2,7 @@
 #include "synth/specialosc.h"
 #include <algorithm>
 #include <memory>
+#include "gui/fonts.h"
 
 using namespace juce;
 using fparam = AudioParameterFloat;
@@ -61,7 +62,7 @@ state(*this,nullptr,"state",
     float_param("osc1_pd_base",0.0f,1.0f,0.0f),
     float_param("osc1_pd_env_amt",0.0f,1.0f,0.0f),
 
-    choice_param("osc1_waveshaper",{"off","sig","chb","sin","tri"},0),
+    choice_param("osc1_waveshaper",{"off","sig","sin","tri"},0),
     float_param("osc1_waveshaper_base",0.0f,1.0f,0.0f),
     float_param("osc1_waveshaper_env_amt",0.0f,1.0f,0.0f),
 
@@ -85,7 +86,10 @@ state(*this,nullptr,"state",
     float_param("osc1_pitch_env_attack",0.001f,4.0f,0.001f),
     float_param("osc1_pitch_env_decay",0.001f,4.0f,0.001f),
     float_param("osc1_pitch_env_sustain",0.0f,1.0f,0.0f),
-    float_param("osc1_pitch_env_release",0.001f,4.0f,0.001f)
+    float_param("osc1_pitch_env_release",0.001f,4.0f,0.001f),
+
+    float_param("osc1_pd_mod_amt",0.0f,1.0f,0.0f),
+    float_param("osc1_ws_mod_amt",0.0f,1.0f,0.0f)
   ),
 
   std::make_unique<AudioProcessorParameterGroup>("osc2","osc2","-",
@@ -100,7 +104,7 @@ state(*this,nullptr,"state",
     float_param("osc2_pd_base",0.0f,1.0f,0.0f),
     float_param("osc2_pd_env_amt",0.0f,1.0f,0.0f),
 
-    choice_param("osc2_waveshaper",{"off","sig","chb","sin","tri"},0),
+    choice_param("osc2_waveshaper",{"off","sig","sin","tri"},0),
     float_param("osc2_waveshaper_base",0.0f,1.0f,0.0f),
     float_param("osc2_waveshaper_env_amt",0.0f,1.0f,0.0f),
 
@@ -126,19 +130,27 @@ state(*this,nullptr,"state",
     float_param("osc2_pitch_env_attack",0.001f,4.0f,0.001f),
     float_param("osc2_pitch_env_decay",0.001f,4.0f,0.001f),
     float_param("osc2_pitch_env_sustain",0.0f,1.0f,0.0f),
-    float_param("osc2_pitch_env_release",0.001f,4.0f,0.001f)
+    float_param("osc2_pitch_env_release",0.001f,4.0f,0.001f),
+
+    float_param("osc2_pd_mod_amt",0.0f,1.0f,0.0f),
+    float_param("osc2_ws_mod_amt",0.0f,1.0f,0.0f)
   ),
 
   //shared stuff
   float_param("portamento",0.0f,1.0f,0.2f),
   float_param("cross_mod_vol",0.0f,1.0f,0.0f),
   float_param("lfo_rate",0.01f,30.0f,0.01f),
+  float_param("mod_lfo_rate",0.01f,30.0f,0.01f),
   float_param("o1_lfo_amt",0.0f,24.0f,0.0f),
   float_param("o2_lfo_amt",0.0f,24.0f,0.0f),
   choice_param("mod_wheel",{"on","off"},1),
   choice_param("lfo_wave",{"sin","tri","saw","-saw","sqr"},0),
+  choice_param("mod_lfo_wave",{"sin","tri","saw","-saw","sqr"},0),
   float_param("bend_range",0.0f,12.0f,2.0f),
-  int_param("voices",1,8,8)
+  int_param("voices",1,8,8),
+  choice_param("out_shaper",{"off","sig","sin","tri"},0),
+  float_param("out_shaper_amt",0.0f,1.0f,0.0f),
+  float_param("final_voice_vol",0.0f,1.0f,0.8f)
 })
 {
 }
@@ -204,6 +216,9 @@ void pd_proc::do_parameters()
   auto osc1_pitch_env_sustain = get_float_val(state,"osc1_pitch_env_sustain");
   auto osc1_pitch_env_release = get_float_val(state,"osc1_pitch_env_release");
 
+  auto osc1_pd_mod = get_float_val(state,"osc1_pd_mod_amt");
+  auto osc1_ws_mod = get_float_val(state,"osc1_ws_mod_amt");
+
   auto osc2_vol = get_float_val(state,"osc2_vol");
   auto osc2_wave = get_enum_choice<waveform>(state,"osc2_wave");
   auto osc2_tune = get_float_val(state,"osc2_tune");
@@ -237,9 +252,17 @@ void pd_proc::do_parameters()
   auto osc2_pitch_env_sustain = get_float_val(state,"osc2_pitch_env_sustain");
   auto osc2_pitch_env_release = get_float_val(state,"osc2_pitch_env_release");
 
+  auto osc2_pd_mod = get_float_val(state,"osc2_pd_mod_amt");
+  auto osc2_ws_mod = get_float_val(state,"osc2_ws_mod_amt");
+
   auto o1_lfo_amt = get_float_val(state,"o1_lfo_amt");
   auto o2_lfo_amt = get_float_val(state,"o2_lfo_amt");
   auto cross_mod_vol = get_float_val(state,"cross_mod_vol");
+
+  auto out_shaper_shp = get_enum_choice<waveshaper>(state,"out_shaper");
+  auto out_shaper_amt = get_float_val(state,"out_shaper_amt");
+
+  auto final_vol = get_float_val(state,"final_voice_vol");
 
   for(auto& v : synth.voices)
   {
@@ -250,10 +273,12 @@ void pd_proc::do_parameters()
     v.osc1.set_phaseshaper(osc1_phaseshaper);
     v.osc1.set_pd(osc1_pd_base);
     v.osc1.set_pd_env_amt(osc1_pd_env_amt);
+    v.osc1.set_pd_mod_amt(osc1_pd_mod);
 
     v.osc1.set_waveshaper(osc1_waveshaper);
     v.osc1.set_shp(osc1_waveshaper_base);
     v.osc1.set_shp_env_amt(osc1_waveshaper_env_amt);
+    v.osc1.set_shp_mod_amt(osc1_ws_mod);
 
     v.osc1.amp_a(osc1_amp_env_attack);
     v.osc1.amp_d(osc1_amp_env_decay);
@@ -284,10 +309,12 @@ void pd_proc::do_parameters()
     v.osc2.set_phaseshaper(osc2_phaseshaper);
     v.osc2.set_pd(osc2_pd_base);
     v.osc2.set_pd_env_amt(osc2_pd_env_amt);
+    v.osc2.set_pd_mod_amt(osc2_pd_mod);
 
     v.osc2.set_waveshaper(osc2_waveshaper);
     v.osc2.set_shp(osc2_waveshaper_base);
     v.osc2.set_shp_env_amt(osc2_waveshaper_env_amt);
+    v.osc2.set_shp_mod_amt(osc2_ws_mod);
 
     v.osc2.amp_a(osc2_amp_env_attack);
     v.osc2.amp_d(osc2_amp_env_decay);
@@ -314,12 +341,18 @@ void pd_proc::do_parameters()
     v.o1_lfo_amt.set_target(o1_lfo_amt);
     v.o2_lfo_amt.set_target(o2_lfo_amt);
     v.xmod_vol.set_target(cross_mod_vol);
+
+    v.out_shaper = out_shaper_shp;
+    v.out_shaper_amt.set_target(out_shaper_amt);
+    v.voice_volume.set_target(final_vol);
   }
 
   //================================================================================
   synth.portamento_time(get_float_val(state,"portamento"));
   synth.pitch_lfo.set_rate(get_float_val(state,"lfo_rate"));
+  synth.mod_lfo.set_rate(get_float_val(state,"mod_lfo_rate"));
   synth.pitch_lfo.set_wave(get_enum_choice<lfo::wave>(state,"lfo_wave"));
+  synth.mod_lfo.set_wave(get_enum_choice<lfo::wave>(state,"mod_lfo_wave"));
   synth.set_bend_range(get_float_val(state,"bend_range"));
   synth.voicer.set_max(get_int_val(state,"voices"));
   synth.mw_on(static_cast<float>(get_choice_val(state, "mod_wheel")));

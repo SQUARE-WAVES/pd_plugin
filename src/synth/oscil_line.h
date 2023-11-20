@@ -14,8 +14,10 @@ class oscil_line
   target_float shp_env_amt;
 
   target_float pitch_env_amt;
-
   target_float tune;
+
+  target_float pd_mod_amt;
+  target_float ws_mod_amt;
 
   //parameters from other devices
   float freq;
@@ -32,7 +34,7 @@ class oscil_line
     oscil_line();
 
     float value();
-    void update();
+    void update(float mod_in =0.0f);
     bool done();
 
     void set_samplerate(float sr);
@@ -47,9 +49,11 @@ class oscil_line
 
     void set_pd(float v);
     void set_pd_env_amt(float v);
+    void set_pd_mod_amt(float v);
     
     void set_shp(float v);
     void set_shp_env_amt(float v);
+    void set_shp_mod_amt(float v);
 
     void amp_a(float v);
     void amp_d(float v);

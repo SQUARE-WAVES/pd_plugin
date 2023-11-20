@@ -16,4 +16,9 @@ namespace gui
     font_binary::PxPlus_IBM_CGA_ttf,
     font_binary::PxPlus_IBM_CGA_ttfSize
   );
+
+  namespace fonts {
+    const fnt normal(tf);
+    const fnt small = normal.withHeight(11.0);
+  }
 }

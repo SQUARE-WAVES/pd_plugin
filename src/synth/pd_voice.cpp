@@ -1,4 +1,29 @@
 #include "pd_voice.h"
+#include "specialosc.h"
+#include "waveshapers.h"
+#include "curves.h"
+
+static const float calc_shaper(const float amt, const waveshaper ws, const float val)
+{
+  switch(ws)
+  {
+    case waveshaper::off:
+      return val;
+    break;
+
+    case waveshaper::tri:
+      return waveshapers::tri(val, amt);
+    break;
+
+    case waveshaper::sin:
+      return waveshapers::sin(val,amt);
+    break;
+
+    case waveshaper::sig:
+      return waveshapers::sigm(val,amt);
+    break;
+  }
+}
 
 float pd_voice::value()
 {
@@ -12,11 +37,12 @@ float pd_voice::value()
   float xmod_v = xmod_vol.value();
 
   float v = (o1 * o1v) + (o2 * o2v) + (xmod * xmod_v);
-  
-  return v;
+  float shp_amt = out_shaper_amt.value();
+
+  return calc_shaper(shp_amt,out_shaper,v) * curves::exp(voice_volume.value()) * 0.5f;
 }
 
-void pd_voice::update(float lfo, float bend)
+void pd_voice::update(float lfo, float bend,float mod)
 {
   note_freq.update();
   o1_lfo_amt.update();
@@ -25,12 +51,15 @@ void pd_voice::update(float lfo, float bend)
   osc1.set_freq(note_freq.value() + (o1_lfo_amt.value() * lfo) + bend);
   osc2.set_freq(note_freq.value() + (o2_lfo_amt.value() * lfo) + bend);
 
-  osc1.update();
-  osc2.update();
+  osc1.update(mod);
+  osc2.update(mod);
 
   o1_vol.update();
   o2_vol.update();
   xmod_vol.update();
+
+  out_shaper_amt.update();
+  voice_volume.update();
 }
 
 bool pd_voice::done()

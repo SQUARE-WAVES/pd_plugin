@@ -19,7 +19,7 @@ mid(proc,proc.state,"-=mods=-"),
 o2(proc.state,"osc2","[[oscil 2]]")
 {
   setup_styles();
-  setSize(1500,900);
+  setSize(1200,665);
 
   addAndMakeVisible(&o1);
   addAndMakeVisible(&o2);
@@ -34,8 +34,8 @@ void pd_proc::editor::paint(gfx &g)
 
 void pd_proc::editor::resized()
 {
-  o1.setBounds(0,0,1500,275);  
-  o2.setBounds(0,600,1500,275);
-  mid.setBounds(0,300,1500,275);
+  o1.setBounds(0,0,1200,220);
+  mid.setBounds(0,221,1200,220);
+  o2.setBounds(0,442,1200,220);
 }
 

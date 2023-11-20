@@ -1,5 +1,6 @@
 #include "oscil_interface.h"
 #include "colors.h"
+#include "fonts.h"
 
 using namespace juce;
 
@@ -75,11 +76,11 @@ wd(st,
 
 void gui::oscil_interface::resized()
 {
-  bg.setBounds(0,0,1500,275);
+  bg.setBounds(0,0,1200,220);
 
   rect text_box = bg.text_box();
-  grid grd = {{0,text_box.getBottom(),1500,275-text_box.getBottom()},10,6};
-  int txt_slice = grd.col_w() - 60;
+  grid grd = {{0,text_box.getBottom(),1200,220-text_box.getBottom()},10,6};
+  int txt_slice = grd.col_w() - 40;
 
   //pitch controls
   tune.setBounds(grd.cell(0,1,2,1));
@@ -126,6 +127,7 @@ void gui::oscil_interface::resized()
 
 void::gui::oscil_interface::background::paint(gfx &g)
 {
+  g.setFont(gui::fonts::small);
   g.setColour(cga::black);
   g.fillAll();
 
@@ -137,7 +139,7 @@ void::gui::oscil_interface::background::paint(gfx &g)
   rect frame = {0,text_center_line,getWidth(),getHeight()-text_center_line};
   
   grid grd = {{0,text_box.getBottom(),getWidth(),getHeight()-text_box.getBottom()},10,6};
-  int txt_slice = 60;
+  int txt_slice = 40;
 
   //pitch panel
   {

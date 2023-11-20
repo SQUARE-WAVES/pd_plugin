@@ -1,5 +1,6 @@
 #include "midline_interface.h"
 #include "grid.h"
+#include "fonts.h"
 
 using namespace juce;
 
@@ -65,7 +66,17 @@ btm_amp(st,"2->1",
   "osc2_amp_env_sustain","osc1_amp_env_sustain",
   "osc2_amp_env_release","osc1_amp_env_release"
 ),
-mod_wheel(st,"mod_wheel")
+mod_wheel(st,"mod_wheel"),
+out_shaper(st,"out_shaper_amt"),
+out_shape(st,"out_shaper"),
+final_volume(st,"final_voice_vol"),
+m_lfo_rate(st,"mod_lfo_rate"),
+m_lfo_wave(st,"mod_lfo_wave"),
+m_lfo_sync(proc,st,"mod_lfo_rate"),
+o1_pd_mod(st,"osc1_pd_mod_amt"),
+o1_ws_mod(st,"osc1_ws_mod_amt"),
+o2_pd_mod(st,"osc2_pd_mod_amt"),
+o2_ws_mod(st,"osc2_ws_mod_amt")
 {
   addAndMakeVisible(&bg);
   addAndMakeVisible(&porta);
@@ -90,13 +101,23 @@ mod_wheel(st,"mod_wheel")
   addAndMakeVisible(&top_amp);
   addAndMakeVisible(&btm_amp);
   addAndMakeVisible(&mod_wheel);
+  addAndMakeVisible(&out_shaper);
+  addAndMakeVisible(&out_shape);
+  addAndMakeVisible(&final_volume);
+  addAndMakeVisible(&m_lfo_rate);
+  addAndMakeVisible(&m_lfo_wave);
+  addAndMakeVisible(&m_lfo_sync);
+  addAndMakeVisible(&o1_pd_mod);
+  addAndMakeVisible(&o1_ws_mod);
+  addAndMakeVisible(&o2_pd_mod);
+  addAndMakeVisible(&o2_ws_mod);
 }
 
 void gui::midline_interface::resized()
 {
-  bg.setBounds(0,0,1500,275);
+  bg.setBounds(0,0,1200,220);
   rect text_box = bg.text_box();
-  grid grd = {{0,text_box.getBottom(),1500,275-text_box.getBottom()},10,6};
+  grid grd = {{0,text_box.getBottom(),1200,220-text_box.getBottom()},10,6};
   int txt_slice = grd.col_w() - 60;
   
   //voicer
@@ -108,34 +129,52 @@ void gui::midline_interface::resized()
   //lfo
   p_lfo_rate.setBounds(grd.cell(1,2,2,1));
   p_lfo_sync.setBounds(grd.cell(1,3,2,1));
-  //this is where the sync bits will go
-  p_lfo_wave.setBounds(grd.cell(1,5,2,1));
+  p_lfo_wave.setBounds(grd.cell(1,4,2,1));
+
   o1_lfo_amt.setBounds(grd.cell(1,6,2,1).removeFromRight(txt_slice));
   o2_lfo_amt.setBounds(grd.cell(1,7,2,1).removeFromRight(txt_slice));
   mod_wheel.setBounds(grd.cell(1,8,2,1).removeFromRight(txt_slice));
+
+  //mod lfo (todo switch with env sync)
+  m_lfo_rate.setBounds(grd.cell(2,2,2,1));
+  m_lfo_sync.setBounds(grd.cell(2,3,2,1));
+  m_lfo_wave.setBounds(grd.cell(2,4,2,1));
+
+  o1_pd_mod.setBounds(grd.cell(2,6,2,1).removeFromRight(txt_slice));
+  o1_ws_mod.setBounds(grd.cell(2,7,2,1).removeFromRight(txt_slice));
+  o2_pd_mod.setBounds(grd.cell(2,8,2,1).removeFromRight(txt_slice));
+  o2_ws_mod.setBounds(grd.cell(2,9,2,1).removeFromRight(txt_slice));
   
   //env sync
   int half_slice = grd.col_w()/2;
-  top_pch.setBounds(grd.cell(2,2,2,1).removeFromLeft(half_slice));
-  btm_pch.setBounds(grd.cell(2,2,2,1).removeFromRight(half_slice));
+  top_pch.setBounds(grd.cell(3,2,2,1).removeFromLeft(half_slice));
+  btm_pch.setBounds(grd.cell(3,2,2,1).removeFromRight(half_slice));
 
-  top_pd.setBounds(grd.cell(2,4,2,1).removeFromLeft(half_slice));
-  btm_pd.setBounds(grd.cell(2,4,2,1).removeFromRight(half_slice));
+  top_pd.setBounds(grd.cell(3,4,2,1).removeFromLeft(half_slice));
+  btm_pd.setBounds(grd.cell(3,4,2,1).removeFromRight(half_slice));
 
-  top_ws.setBounds(grd.cell(2,6,2,1).removeFromLeft(half_slice));
-  btm_ws.setBounds(grd.cell(2,6,2,1).removeFromRight(half_slice));
+  top_ws.setBounds(grd.cell(3,6,2,1).removeFromLeft(half_slice));
+  btm_ws.setBounds(grd.cell(3,6,2,1).removeFromRight(half_slice));
   
-  top_amp.setBounds(grd.cell(2,8,2,1).removeFromLeft(half_slice));
-  btm_amp.setBounds(grd.cell(2,8,2,1).removeFromRight(half_slice));
+  top_amp.setBounds(grd.cell(3,8,2,1).removeFromLeft(half_slice));
+  btm_amp.setBounds(grd.cell(3,8,2,1).removeFromRight(half_slice));
 
   //mixer
-  o1_out.setBounds(grd.cell(5,2,2,1));
-  o2_out.setBounds(grd.cell(5,4,2,1));
-  xmod_out.setBounds(grd.cell(5,6,2,1));
+  o1_out.setBounds(grd.cell(4,2,2,1));
+  o2_out.setBounds(grd.cell(4,4,2,1));
+  xmod_out.setBounds(grd.cell(4,6,2,1));
+
+  //out shaper
+  out_shape.setBounds(grd.cell(5,2,2,1));
+  out_shaper.setBounds(grd.cell(5,3,2,1));
+
+  //output_volume
+  final_volume.setBounds(grd.cell(5,5,2,1));
 }
 
 void gui::midline_interface::background::paint(gfx &g)
 {
+  g.setFont(gui::fonts::small);
   g.setColour(cga::black);
   g.fillAll();
 
@@ -145,9 +184,9 @@ void gui::midline_interface::background::paint(gfx &g)
   rect text_box = {(getWidth()-tw)/2 - 1,0,tw+2,fh+2};
   int text_center_line = (fh+2)/2;
   rect frame = {0,text_center_line,getWidth(),getHeight()-text_center_line};
-  
   grid grd = {{0,text_box.getBottom(),getWidth(),getHeight()-text_box.getBottom()},10,6};
-  //int txt_slice = 60;
+  
+  const int txt_slice = 60;
 
   //voicer panel
   {
@@ -164,7 +203,7 @@ void gui::midline_interface::background::paint(gfx &g)
     g.drawText("portamento",grd.cell(0,1),jst::centred);
     g.drawText("bend range",grd.cell(0,4),jst::centred);
 
-    g.drawText("polyphony count",grd.cell(0,6),jst::centred);
+    g.drawText("max voices",grd.cell(0,6),jst::centred);
   }
 
   //pitch_lfo
@@ -181,12 +220,12 @@ void gui::midline_interface::background::paint(gfx &g)
     g.setColour(cga::grey);
     g.drawText("rate",grd.cell(1,1),jst::centred);
     g.drawText("waveform",grd.cell(1,4),jst::centred);
-    g.drawText("o1",grd.cell(1,6).removeFromLeft(60),jst::centred);
-    g.drawText("o2",grd.cell(1,7).removeFromLeft(60),jst::centred);
-    g.drawText("mod",grd.cell(1,8).removeFromLeft(60),jst::centred);
+    g.drawText("o1",grd.cell(1,6).removeFromLeft(txt_slice),jst::centred);
+    g.drawText("o2",grd.cell(1,7).removeFromLeft(txt_slice),jst::centred);
+    g.drawText("mod",grd.cell(1,8).removeFromLeft(txt_slice),jst::centred);
   }
 
-  //env sync
+  //mod lfo
   {
     auto panel_bounds = grd.cell_rect(2,0,1,10);
     g.setColour(cga::white);
@@ -195,16 +234,18 @@ void gui::midline_interface::background::paint(gfx &g)
     g.setColour(cga::hi_cyan);
     g.fillRect(grd.cell(2,0,2,1));
     g.setColour(cga::black);
-    g.drawText("ENV SYNC",grd.cell(2,0),jst::centred);
-    
-    g.setColour(cga::grey);
-    g.drawText("pitch",grd.cell(2,1),jst::centred);
-    g.drawText("pd",grd.cell(2,3),jst::centred);
-    g.drawText("ws",grd.cell(2,5),jst::centred);
-    g.drawText("amp",grd.cell(2,7),jst::centred);
-  }
+    g.drawText("MOD LFO",grd.cell(2,0),jst::centred);
 
-  //e1
+    g.setColour(cga::grey);
+    g.drawText("rate",grd.cell(2,1),jst::centred);
+    g.drawText("o1 pd",grd.cell(2,6).removeFromLeft(txt_slice),jst::centred);
+    g.drawText("o1 ws",grd.cell(2,7).removeFromLeft(txt_slice),jst::centred);
+    
+    g.drawText("o2 pd",grd.cell(2,8).removeFromLeft(txt_slice),jst::centred);
+    g.drawText("o2 ws",grd.cell(2,9).removeFromLeft(txt_slice),jst::centred);
+  } 
+
+  //env sync
   {
     auto panel_bounds = grd.cell_rect(3,0,1,10);
     g.setColour(cga::white);
@@ -213,23 +254,33 @@ void gui::midline_interface::background::paint(gfx &g)
     g.setColour(cga::hi_cyan);
     g.fillRect(grd.cell(3,0,2,1));
     g.setColour(cga::black);
-    g.drawText("NOTHING YET",grd.cell(3,0),jst::centred);
+    g.drawText("ENV SYNC",grd.cell(3,0),jst::centred);
+    
+    g.setColour(cga::grey);
+    g.drawText("pitch",grd.cell(3,1),jst::centred);
+    g.drawText("pd",grd.cell(3,3),jst::centred);
+    g.drawText("ws",grd.cell(3,5),jst::centred);
+    g.drawText("amp",grd.cell(3,7),jst::centred);
+  }
 
-  } 
-
-  //e1
+  //out mixer
   {
-    auto panel_bounds = grd.cell_rect(4,0,1,10);
+    auto panel_bounds = grd.cell_rect(4,1,1,10);
     g.setColour(cga::white);
     g.drawRect(panel_bounds.getX(),text_center_line,panel_bounds.getWidth(),frame.getHeight());
 
     g.setColour(cga::hi_cyan);
     g.fillRect(grd.cell(4,0,2,1));
     g.setColour(cga::black);
-    g.drawText("NOTHING YET",grd.cell(4,0),jst::centred);
+    g.drawText("VOICE MIX",grd.cell(4,0),jst::centred);
+
+    g.setColour(cga::grey);
+    g.drawText("oscil 1",grd.cell(4,1),jst::centred);
+    g.drawText("oscil 2",grd.cell(4,3),jst::centred);
+    g.drawText("X-mod",grd.cell(4,5),jst::centred);
   }
 
-  //out mixer
+  //out shaper
   {
     auto panel_bounds = grd.cell_rect(5,1,1,10);
     g.setColour(cga::white);
@@ -238,12 +289,13 @@ void gui::midline_interface::background::paint(gfx &g)
     g.setColour(cga::hi_cyan);
     g.fillRect(grd.cell(5,0,2,1));
     g.setColour(cga::black);
-    g.drawText("OUT MIX",grd.cell(5,0),jst::centred);
+    g.drawText("OUT SHAPER",grd.cell(5,0),jst::centred);
 
-    g.setColour(cga::grey);
-    g.drawText("oscil 1",grd.cell(5,1),jst::centred);
-    g.drawText("oscil 2",grd.cell(5,3),jst::centred);
-    g.drawText("X-mod",grd.cell(5,5),jst::centred);
+    g.setColour(cga::hi_cyan);
+    g.fillRect(grd.cell(5,4,2,1));
+    g.setColour(cga::black);
+    g.drawText("FINAL VOLUME",grd.cell(5,4),jst::centred);
+
   }
 
   g.setColour(cga::black);

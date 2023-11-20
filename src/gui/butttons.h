@@ -5,6 +5,7 @@
 
 #include "types.h"
 #include "colors.h"
+#include "fonts.h"
 
 namespace gui
 {
@@ -34,6 +35,8 @@ namespace gui
 
     void paint(gfx& g) override
     {
+      g.setFont(gui::fonts::small);
+
       auto cs = param->choices;
       auto cw = (getWidth())/cs.size();
       int x = 0;
@@ -117,6 +120,7 @@ namespace gui
 
     void paint(gfx& g) override
     {
+      g.setFont(gui::fonts::small);
       int cw = (getWidth())/count();
       int x = 0;
       
@@ -200,6 +204,9 @@ namespace gui
 
     void paint(gfx& g) override
     {
+
+      g.setFont(gui::fonts::small);
+
       int cw = (getWidth())/count();
       int x = 0;
       
@@ -255,6 +262,8 @@ namespace gui
 
     void paint(gfx& g) override
     {
+
+      g.setFont(gui::fonts::small);
       auto bg = holding ? cga::magenta : cga::black;
       g.setColour(bg);
       g.fillAll();

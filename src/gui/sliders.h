@@ -5,6 +5,7 @@
 
 #include "types.h"
 #include "colors.h"
+#include "fonts.h"
 
 namespace gui
 {
@@ -12,11 +13,22 @@ namespace gui
   {
     using cids = juce::Slider::ColourIds;
 
+    class lnf : public juce::LookAndFeel_V4
+    {
+      public:
+        juce::Font getLabelFont(juce::Label& ) override
+        {
+          return gui::fonts::small;
+        }
+    };
+
+
     public:
 
       bar_slider(juce::AudioProcessorValueTreeState& state, str param_id):
       juce::AudioProcessorValueTreeState::SliderAttachment(state,param_id,*this)
       {
+        setLookAndFeel(new lnf());
         setSliderStyle(juce::Slider::LinearBar);
         setColour(cids::textBoxOutlineColourId,cga::hi_cyan);
         setColour(cids::textBoxTextColourId,cga::white);

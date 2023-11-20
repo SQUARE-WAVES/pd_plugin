@@ -34,7 +34,7 @@ void pd_syn::update()
   {
     if(!v.done())
     {
-      v.update(total_pw,bend_freq.value());
+      v.update(total_pw,bend_freq.value(),mod_lfo.value());
     }
   }
 }

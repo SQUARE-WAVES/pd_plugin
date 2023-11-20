@@ -11,6 +11,8 @@ shp_amt(0.0f,0.0f,1.0f),
 shp_env_amt(0.0f,0.0f,1.0f),
 pitch_env_amt(0.0f,-24.0f,24.0),
 tune(0.0f,-12.0f,12.0f),
+pd_mod_amt(0.0f,0.0f,1.0),
+ws_mod_amt(0.0f,0.0f,1.0),
 amp_env(0.01f,0.1f,1.0f,0.01f),
 pd_env(0.01f,0.1f,1.0f,0.01f),
 shp_env(0.01f,0.1f,1.0f,0.01f),
@@ -26,7 +28,7 @@ float oscil_line::value()
   return oscil * curves::exp(env);
 }
 
-void oscil_line::update()
+void oscil_line::update(float mod_in)
 {
   pd_amt.update();
   pd_env_amt.update();
@@ -46,11 +48,18 @@ void oscil_line::update()
   float tuned_freq = 440.0f * std::exp2( ((freq-69.0f) + tune.value() + pitch_env_val) /12.0f);
   osc.phasor.set_frequency(tuned_freq);
 
-  osc.pd_amt = pd_amt.value() + (pd_env_amt.value() * pd_env.value());
+  pd_mod_amt.update();
+  ws_mod_amt.update();
+
+  float pd_mod_val = pd_mod_amt.value() * mod_in;
+  osc.pd_amt = pd_amt.value() + (pd_env_amt.value() * pd_env.value()) + pd_mod_val;
   osc.pd_amt = std::clamp(osc.pd_amt,0.0f,1.0f);
   osc.pd_amt = curves::inv_curve(osc.pd_amt);
 
-  osc.shp_amt = shp_amt.value() + (curves::exp_decay(shp_env_amt.value()) * shp_env.value());
+  float shp_mod_val = ws_mod_amt.value() * mod_in;
+  float shp_env_val = curves::exp_decay(shp_env_amt.value()) * shp_env.value();
+
+  osc.shp_amt = shp_amt.value() + shp_env_val + shp_mod_val;
   osc.shp_amt = std::clamp(osc.shp_amt,0.0f,1.0f);
   osc.shp_amt = osc.shp_amt;
 
@@ -124,6 +133,11 @@ void oscil_line::set_pd_env_amt(float v)
 {
   pd_env_amt.set_target(v);
 }
+
+void oscil_line::set_pd_mod_amt(float v)
+{
+  pd_mod_amt.set_target(v);
+}
   
 void oscil_line::set_shp(float v)
 {
@@ -133,6 +147,11 @@ void oscil_line::set_shp(float v)
 void oscil_line::set_shp_env_amt(float v)
 {
   shp_env_amt.set_target(v);
+}
+
+void oscil_line::set_shp_mod_amt(float v)
+{
+  ws_mod_amt.set_target(v);
 }
 
 void oscil_line::amp_a(float v)

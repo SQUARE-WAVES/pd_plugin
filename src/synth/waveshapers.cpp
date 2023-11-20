@@ -4,7 +4,7 @@
 
 float waveshapers::tri(const float v,const float amt)
 {
-  const float val = v * (1.0f + (amt*4.0f));
+  const float val = v * (1.0f + (amt*6.0f));
 
   const float flipper = fmodf(val,2.0f);
 
@@ -38,7 +38,7 @@ float waveshapers::cheby(const float v, const float amt)
   const float c6 = (2.0f * v * c5) - c4;
   const float cextr = (c1 + c2 + c3 + c4 + c5 + c6)/6.0f;
 
-  return (c1* (1.0f-amt)) + cextr*amt;
+  return (c1 * (1.0f-amt)) + cextr*amt;
 }
 
 float waveshapers::sigm(const float v, const float amt)
@@ -53,5 +53,4 @@ float waveshapers::sigm(const float v, const float amt)
     float c = (-1.1f/((10.0f * -v) + 1.0f)) + 1.1f;
     return (v * (1.0f - amt)) + (-c * amt);
   }
-
 }

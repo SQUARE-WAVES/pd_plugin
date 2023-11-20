@@ -98,7 +98,6 @@ namespace gui
       }
     };
 
-
     background bg;
     bar_slider porta;
     preset_bar porta_pres;
@@ -128,6 +127,20 @@ namespace gui
     env_sync_btn btm_amp;
 
     choice_bar mod_wheel;
+
+    bar_slider out_shaper;
+    choice_bar out_shape;
+
+    bar_slider final_volume;
+
+    bar_slider m_lfo_rate;
+    choice_bar m_lfo_wave;
+    lfo_sync m_lfo_sync;
+
+    bar_slider o1_pd_mod;
+    bar_slider o1_ws_mod;
+    bar_slider o2_pd_mod;
+    bar_slider o2_ws_mod;
 
     public:
     midline_interface(juce::AudioProcessor& proc,vts& st,str panel_name);
