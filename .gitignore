@@ -37,6 +37,7 @@
 #cmake stuff
 cmake_build*
 CmakeCache
+./bld
 
 #my fun scripts
 rebuild
